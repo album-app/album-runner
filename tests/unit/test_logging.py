@@ -1,7 +1,7 @@
 import unittest
+from io import StringIO
 
 from hips_runner.logging import *
-from test.unit.test_common import TestHipsCommon
 
 
 def helper_test_configure_logging(logger):
@@ -60,7 +60,9 @@ class TestLogging(unittest.TestCase):
         self.assertEqual(handler_levels, [to_level.name] * len(handler_levels))
 
 
-class TestLogfileBuffer(TestHipsCommon):
+class TestLogfileBuffer(unittest.TestCase):
+    def setUp(self) -> None:
+        self.configure_test_logging(StringIO())
 
     def tearDown(self) -> None:
         super().tearDown()
@@ -77,6 +79,23 @@ class TestLogfileBuffer(TestHipsCommon):
         self.assertEqual("\t\tover", logs[1])
         self.assertEqual("\t\tseveral", logs[2])
         self.assertEqual("\t\tlines", logs[3])
+
+    def configure_test_logging(self, stream_handler):
+        self.logger = logging.getLogger("unitTest")
+
+        if not self.logger.hasHandlers():
+            self.logger.setLevel('INFO')
+            ch = logging.StreamHandler(stream_handler)
+            ch.setLevel('INFO')
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            ch.setFormatter(formatter)
+            self.logger.addHandler(ch)
+            push_active_logger(self.logger)
+
+    def get_logs(self):
+        logs = self.logger.handlers[0].stream.getvalue()
+        logs = logs.strip()
+        return logs.split("\n")
 
 
 if __name__ == '__main__':
