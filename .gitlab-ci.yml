@@ -18,4 +18,4 @@ stages:
 unit tests:
   stage: test
   script:
-    - python -m unit test/run_all_integration.py
+    - python -m unittest tests/run_all.py
