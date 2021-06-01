@@ -1,4 +1,4 @@
-from hips_runner.hips_base import HipsRunner
+from hips_runner.hips_runner import HipsRunner
 from hips_runner.logging import get_active_logger
 
 """
@@ -49,25 +49,3 @@ def pop_active_hips():
         return _active_hips.pop(0)
     else:
         return None
-
-
-def load_and_push_hips(path):
-    """Load hips script"""
-    module_logger().debug(f'Loading HIPS from {path}...')
-    with open(path, "r") as f:
-        hips_script = f.read()
-    exec(hips_script)
-    active_hips = get_active_hips()
-    active_hips.script = hips_script
-    return active_hips
-
-
-def load(path):
-    module_logger().debug(f'Loading HIPS from {path}...')
-    with open(path, "r") as f:
-        hips_script = f.read()
-    exec(hips_script)
-    active_hips = get_active_hips()
-    active_hips.script = hips_script
-    pop_active_hips()
-    return active_hips
