@@ -19,6 +19,13 @@ def setup(**attrs):
     push_active_hips(next_hips)
 
 
+def hips_runner_init(**attrs):
+    active_hips = get_active_hips()
+    for attr in attrs:
+        if attr in HipsRunner.api_keywords:
+            setattr(active_hips, attr, attrs[attr])
+
+
 def push_active_hips(hips_object):
     """Pop a hips to the _active_hips stack."""
     global _active_hips

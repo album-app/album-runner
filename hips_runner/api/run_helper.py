@@ -1,29 +1,26 @@
 import os
+import subprocess
+from pathlib import Path
 
-from hips_runner import logging
-from hips.core.model.configuration import HipsConfiguration
-from hips.core.utils import subcommand
+from hips_runner import logging, get_active_hips
 
 module_logger = logging.get_active_logger
 
 
 # todo: write test
-def chdir_repository(active_hips):
+def chdir_repository(path):
     """Actively changes pythons working directory to the cache path of the solution.
 
     Args:
-        active_hips:
-            The HIP-solution class object.
+        path:
+            The path to change the working directory to.
 
     """
-    configuration = HipsConfiguration()
-    repo_path = configuration.get_cache_path_hips(active_hips).joinpath(active_hips["name"])
-
     # assumes repo is up to date!
-    if repo_path.joinpath(".git").exists():
-        os.chdir(str(repo_path))
+    if Path(path).joinpath(".git").exists():
+        os.chdir(path)
     else:
-        raise FileNotFoundError("Could not identify %s as repository. Aborting..." % repo_path)
+        raise FileNotFoundError("Could not identify %s as repository. Aborting..." % path)
 
 
 # todo: write test

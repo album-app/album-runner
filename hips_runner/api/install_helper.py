@@ -1,15 +1,20 @@
 import os
+import subprocess
 from pathlib import Path
 
 import requests
-from hips.core import get_active_hips
 
-from hips.core.model.configuration import HipsConfiguration
-
+from hips_runner import get_active_hips
 from hips_runner import logging
-from hips.core.utils.operations.git_operations import download_repository
 
 module_logger = logging.get_active_logger
+
+
+class InstallError(Exception):
+    """Exception class for argument extraction"""
+
+    def __init__(self, short_message):
+        self.short_message = short_message
 
 
 def download_if_not_exists(active_hips, url, file_name):
@@ -23,8 +28,7 @@ def download_if_not_exists(active_hips, url, file_name):
     Returns: The path to the downloaded resource
 
     """
-    configuration = HipsConfiguration()
-    download_dir = configuration.get_cache_path_downloads(active_hips)
+    download_dir = active_hips.download_cache_path
     download_path = download_dir.joinpath(file_name)
     if download_path.exists():
         module_logger().info(f"Found cache of {url}: {download_path}...")
@@ -71,17 +75,17 @@ def download_hips_repository(active_hips):
         The directory of the git directory.
 
     """
-    config = HipsConfiguration()
-    download_path = config.get_cache_path_hips(active_hips).joinpath(active_hips["name"])
+    download_path = str(Path(active_hips["download_cache_path"]).joinpath(active_hips["name"]))
 
-    repo = download_repository(active_hips['git_repo'], download_path)
+    r = subprocess.run(["git", "clone", active_hips['git_repo'], download_path])
 
-    repository_path = repo.working_tree_dir
+    if r.returncode != 0:
+        raise InstallError("Git clone operation failed! See logs for information!")
 
     # set python workdir
-    os.chdir(repository_path)
+    os.chdir(download_path)
 
-    return repository_path
+    return download_path
 
 
 # todo: write test

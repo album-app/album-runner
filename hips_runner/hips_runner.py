@@ -9,6 +9,8 @@ class HipsRunner:
                       'documentation', 'covers', 'sample_inputs',
                       'sample_outputs', 'doi', 'catalog', 'parent', 'steps', 'close', 'title')
 
+    api_keywords = ('environment_path', 'environment_name', 'environment_cache_path', 'download_cache_path')
+
     # default values
     dependencies = None
     parent = None
