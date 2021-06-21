@@ -164,33 +164,67 @@ class LogfileBuffer(io.StringIO):
         self.message_formatter = message_formatter
 
     def write(self, s: str) -> int:
-        s = self.tabulate_multi_lines(s)
+        log_level_regex = "|".join([l.name for l in LogLevel])
 
-        r = re.search('^([^-]+) - ([^-]+) - ((?:.|\n)+)', s)
-        if r:
-            name = r.group(1)
-            level = r.group(2)
-            message = r.group(3)
+        messages, regex = self.regex_line(s)
 
-            if self.message_formatter and callable(self.message_formatter):
-                message = self.message_formatter(message)
+        for m, _ in zip(messages, regex):
+            s = self.tabulate_multi_lines(m)
 
-            old_name = self.module_logger().name
-            self.module_logger().name = name
+            r = re.search('^([^-]+) - (%s) - ((?:.|\n)+)' % log_level_regex, s)
 
-            if LogLevel.INFO.name == level:
-                self.module_logger().info(message)
-            elif LogLevel.DEBUG.name == level:
-                self.module_logger().debug(message)
-            elif LogLevel.WARNING.name == level:
-                self.module_logger().warning(message)
+            if r:
+                name = r.group(1)
+                level = r.group(2)
+                message = r.group(3)
 
-            self.module_logger().name = old_name
+                if self.message_formatter and callable(self.message_formatter):
+                    message = self.message_formatter(message)
 
-        else:  # unknown message not using print or logging.
-            self.module_logger().info(s)
+                old_name = self.module_logger().name
+                self.module_logger().name = name
+
+                if LogLevel.INFO.name == level:
+                    self.module_logger().info(message)
+                elif LogLevel.DEBUG.name == level:
+                    self.module_logger().debug(message)
+                elif LogLevel.WARNING.name == level:
+                    self.module_logger().warning(message)
+
+                self.module_logger().name = old_name
+
+            else:  # unknown message not using print or logging.
+                self.module_logger().info(s)
 
         return 1
+
+    def regex_line(self, s: str):
+        # init empty return val
+        messages = []
+        regex = []
+
+        # regex for log level
+        log_level_regex = "|".join([l.name for l in LogLevel])
+
+        # split and strip
+        split_s = [l.strip() for l in s.split("\n")]
+
+        # regex for log message.
+        for l in split_s:
+            r = re.search('^([^-]+) - (%s) - ((?:.)+)' % log_level_regex, l)
+
+            if r:  # pattern found
+                messages.append(l)
+                regex.append(r)
+            else:  # pattern not found
+                if regex:  # message part of previous message
+                    messages[-1] += "\n" + l
+                else:  # message standalone
+                    messages.append(s)
+                    regex.append(None)
+                    return [messages, regex]
+
+        return [messages, regex]
 
     @staticmethod
     def tabulate_multi_lines(s: str, indent=2):
