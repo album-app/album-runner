@@ -92,7 +92,7 @@ def configure_logging(loglevel, name, stream_handler=None, formatter_string=None
         The logger object.
 
     """
-    # create logger
+    # create or get logger
     logger = logging.getLogger(name)
 
     if not logger.hasHandlers():
@@ -119,7 +119,8 @@ def configure_logging(loglevel, name, stream_handler=None, formatter_string=None
         # add ch to logger
         logger.addHandler(ch)
 
-        # push logger
+    # push logger if not already active
+    if get_active_logger() != logger:
         push_active_logger(logger)
 
     return logger

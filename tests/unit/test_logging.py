@@ -15,7 +15,10 @@ def helper_test_configure_logging(logger):
 class TestLogging(unittest.TestCase):
 
     def tearDown(self) -> None:
-        pop_active_logger()
+        while True:
+            logger = pop_active_logger()
+            if logger == logging.getLogger():
+                break
 
     def setUp(self):
         # all hips logging levels
@@ -30,7 +33,6 @@ class TestLogging(unittest.TestCase):
             to_loglevel("NotAvailableLogLevel")
 
     def test_configure_logging(self):
-
         for idx, level in enumerate(self.loglevels):
             # set correct logging level for logger and all logger.handler for all hips logging level
             logger = configure_logging(level, "test_%s" % idx)
@@ -39,6 +41,15 @@ class TestLogging(unittest.TestCase):
 
             handler_levels = helper_test_configure_logging(logger)
             self.assertEqual(handler_levels, [level.name] * len(handler_levels))
+
+    def test_configure_logging_twice(self):
+        logger = configure_logging(self.loglevels[0], "test_logger")
+        self.assertEqual(get_active_logger(), logger)
+        logger2 = configure_logging(self.loglevels[0], "test_logger")
+        self.assertEqual(logger, logger2)
+        self.assertEqual(get_active_logger(), logger)
+        self.assertEqual(pop_active_logger(), logger)
+        self.assertEqual(pop_active_logger(), logging.getLogger())  # this should be the root logger
 
     def test_set_loglevel(self):
         init_level = LogLevel(0)
