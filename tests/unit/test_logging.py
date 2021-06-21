@@ -62,9 +62,11 @@ class TestLogging(unittest.TestCase):
 
 class TestLogfileBuffer(unittest.TestCase):
     def setUp(self) -> None:
-        self.configure_test_logging(StringIO())
+        self.capture_output = StringIO()
+        self.configure_test_logging(self.capture_output)
 
     def tearDown(self) -> None:
+        pop_active_logger()
         super().tearDown()
 
     def test_write(self):
@@ -80,6 +82,23 @@ class TestLogfileBuffer(unittest.TestCase):
         self.assertEqual("\t\tseveral", logs[2])
         self.assertEqual("\t\tlines", logs[3])
 
+    def test_write_with_loglevel(self):
+
+        self.assertIsNotNone(get_active_logger())
+
+        log_buffer = LogfileBuffer()
+        log_buffer.write("app1 - WARNING - message\n over \n several \n lines\napp1 - INFO - i\no\ns\nl")
+
+        logs = self.get_logs()
+        self.assertIn("app1 - WARNING - message", logs[0])
+        self.assertEqual("\t\tover", logs[1])
+        self.assertEqual("\t\tseveral", logs[2])
+        self.assertEqual("\t\tlines", logs[3])
+        self.assertIn("app1 - INFO - i", logs[4])
+        self.assertEqual("\t\to", logs[5])
+        self.assertEqual("\t\ts", logs[6])
+        self.assertEqual("\t\tl", logs[7])
+
     def configure_test_logging(self, stream_handler):
         self.logger = logging.getLogger("unitTest")
 
@@ -93,7 +112,7 @@ class TestLogfileBuffer(unittest.TestCase):
             push_active_logger(self.logger)
 
     def get_logs(self):
-        logs = self.logger.handlers[0].stream.getvalue()
+        logs = self.capture_output.getvalue()
         logs = logs.strip()
         return logs.split("\n")
 
