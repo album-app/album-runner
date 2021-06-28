@@ -3,7 +3,7 @@ class HipsRunner:
 
     setup_keywords = ('group', 'name', 'version', 'description', 'url', 'license',
                       'min_hips_version', 'tested_hips_version', 'args',
-                      'init', 'run', 'install', 'pre_test', 'post_test', 'author', 'author_email',
+                      'init', 'run', 'install', 'pre_test', 'test', 'author', 'author_email',
                       'long_description', 'git_repo', 'dependencies',
                       'timestamp', 'format_version', 'authors', 'cite', 'tags',
                       'documentation', 'covers', 'sample_inputs',
