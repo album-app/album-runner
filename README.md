@@ -1,3 +1,3 @@
-# hips-runner
+# album-runner
 
-Interpreting a hips script.
+Interpreting an album script.
