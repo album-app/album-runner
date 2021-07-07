@@ -17,7 +17,7 @@ class TestInstallHelper(unittest.TestCase):
         pass
 
     @unittest.skip("Needs to be implemented!")
-    def test_download_hips_repository(self):
+    def test_download_repository(self):
         # ToDo: implement
         pass
 

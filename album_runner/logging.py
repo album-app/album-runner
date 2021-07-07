@@ -28,7 +28,7 @@ def get_active_logger():
 
 
 def pop_active_logger():
-    """Pop the currently active logger from the _active_hips stack."""
+    """Pop the currently active logger from the _active_solution stack."""
     global _active_logger
 
     if len(_active_logger) > 0:
@@ -42,7 +42,7 @@ def pop_active_logger():
 
 @unique
 class LogLevel(IntEnum):
-    """LogLevel hips allows.
+    """LogLevel album allows.
 
     Notes:
         Only add Names available in python standard logging module.
@@ -238,5 +238,5 @@ class LogfileBuffer(io.StringIO):
         return r.strip()
 
 
-def hips_debug():
+def debug_settings():
     return DEBUG

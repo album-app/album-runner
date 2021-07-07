@@ -1,7 +1,7 @@
 import unittest
 from io import StringIO
 
-from hips_runner.logging import *
+from album_runner.logging import *
 
 
 def helper_test_configure_logging(logger):
@@ -21,7 +21,7 @@ class TestLogging(unittest.TestCase):
                 break
 
     def setUp(self):
-        # all hips logging levels
+        # all logging levels
         self.loglevels = [LogLevel(0), LogLevel(1)]
 
     def test_to_loglevel(self):
@@ -34,7 +34,7 @@ class TestLogging(unittest.TestCase):
 
     def test_configure_logging(self):
         for idx, level in enumerate(self.loglevels):
-            # set correct logging level for logger and all logger.handler for all hips logging level
+            # set correct logging level for logger and all logger.handler for all logging level
             logger = configure_logging(level, "test_%s" % idx)
 
             self.assertTrue(logging.getLevelName(logger.level) == level.name)

@@ -1,8 +1,8 @@
-class HipsRunner:
-    """Encapsulates a HIPS."""
+class AlbumRunner:
+    """Encapsulates a album solution."""
 
     setup_keywords = ('group', 'name', 'version', 'description', 'url', 'license',
-                      'min_hips_version', 'tested_hips_version', 'args',
+                      'min_album_version', 'tested_album_version', 'args',
                       'init', 'run', 'install', 'pre_test', 'test', 'author', 'author_email',
                       'long_description', 'git_repo', 'dependencies',
                       'timestamp', 'format_version', 'authors', 'cite', 'tags',
@@ -42,6 +42,6 @@ class HipsRunner:
         return None
 
     def get_arg(self, k):
-        """Get a specific named argument for this hips if it exists."""
+        """Get a specific named argument for this album if it exists."""
         matches = [arg for arg in self['args'] if arg['name'] == k]
         return matches[0]
