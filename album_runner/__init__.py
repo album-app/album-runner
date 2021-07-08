@@ -1,3 +1,5 @@
+import sys
+
 from album_runner.album_runner import AlbumRunner
 from album_runner.logging import get_active_logger
 
@@ -8,7 +10,7 @@ directly instead use get_active_solution()
 global _active_solution
 _active_solution = []
 
-
+enc = sys.getfilesystemencoding()
 module_logger = logging.get_active_logger
 
 
@@ -23,7 +25,9 @@ def album_runner_init(**attrs):
     active_solution = get_active_solution()
     for attr in attrs:
         if attr in AlbumRunner.api_keywords:
-            setattr(active_solution, attr, attrs[attr])
+            # expects value to be a byte-str
+            decoded_value = attrs[attr].decode(enc)
+            setattr(active_solution, attr, decoded_value)
 
 
 def push_active_solution(solution_object):
