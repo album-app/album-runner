@@ -8,33 +8,48 @@ Global variable for tracking the currently active logger. Do not use this
 directly instead use get_active_logger()
 """
 global _active_logger
-_active_logger = []
+_active_logger = {}
 
 DEBUG = False
 
 
+def thread_stack():
+    global _active_logger
+    thread_id = threading.current_thread().ident
+    if thread_id not in _active_logger:
+        _active_logger[thread_id] = []
+    return _active_logger.get(thread_id)
+
+
 def push_active_logger(logger):
     """Insert a logger to the _active_logger stack."""
-    global _active_logger
-    _active_logger.insert(0, logger)
+    thread_stack().insert(0, logger)
 
 
 def get_active_logger():
     """Return the currently active logger, which is defined globally."""
-    global _active_logger
-    if len(_active_logger) > 0:
-        return _active_logger[0]
+    stack = thread_stack()
+    if len(stack) > 0:
+        return stack[0]
+    return logging.getLogger()  # root logger
+
+
+def get_active_logger_in_thread(thread_ident):
+    """Return the currently active logger, which is defined globally."""
+    if thread_ident in _active_logger:
+        stack = _active_logger.get(thread_ident)
+        if len(stack) > 0:
+            return stack[0]
     return logging.getLogger()  # root logger
 
 
 def pop_active_logger():
     """Pop the currently active logger from the _active_solution stack."""
-    global _active_logger
-
-    if len(_active_logger) > 0:
-        logger = _active_logger.pop(0)
-        while logger.hasHandlers():
-            logger.removeHandler(logger.handlers[0])
+    
+    stack = thread_stack()
+    if len(stack) > 0:
+        logger = stack.pop(0)
+        logger.handlers.clear()
         return logger
     else:
         return logging.getLogger()  # root logger

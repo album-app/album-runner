@@ -110,10 +110,52 @@ class TestLogfileBuffer(unittest.TestCase):
         self.assertEqual("\t\ts", logs[6])
         self.assertEqual("\t\tl", logs[7])
 
+    def test_multiprocessing(self):
+        capture_output1 = StringIO()
+        capture_output2 = StringIO()
+        thread1 = threading.Thread(target=self.log_in_thread, args=("thread1", capture_output1))
+        thread2 = threading.Thread(target=self.log_in_thread, args=("thread2", capture_output2))
+
+        thread1.start()
+        thread2.start()
+
+        thread1.join()
+        thread2.join()
+
+        logger1 = get_active_logger_in_thread(thread1.ident)
+        logger2 = get_active_logger_in_thread(thread2.ident)
+
+        self.assertIsNotNone(logger1)
+        self.assertIsNotNone(logger2)
+        self.assertNotEqual(logger1, get_active_logger())
+        self.assertNotEqual(logger2, get_active_logger())
+        self.assertNotEqual(logger1, logger2)
+
+        logs1 = self.as_list(capture_output1.getvalue())
+        logs2 = self.as_list(capture_output2.getvalue())
+
+        self.assertEqual(100, len(logs1))
+        self.assertEqual(100, len(logs2))
+        all(self.assertTrue(elem.startswith("thread1")) for elem in logs1)
+        all(self.assertTrue(elem.startswith("thread2")) for elem in logs2)
+
+    @staticmethod
+    def log_in_thread(name, stream_handler):
+        logger = logging.getLogger(name)
+        logger.setLevel('INFO')
+        ch = logging.StreamHandler(stream_handler)
+        ch.setLevel('INFO')
+        ch.setFormatter(logging.Formatter('%(message)s'))
+        logger.addHandler(ch)
+        push_active_logger(logger)
+        log_buffer = LogfileBuffer()
+        for i in range(0, 100):
+            log_buffer.write(name + "_" + str(i))
+
     def configure_test_logging(self, stream_handler):
         self.logger = logging.getLogger("unitTest")
 
-        if not self.logger.hasHandlers():
+        if len(self.logger.handlers) == 0:
             self.logger.setLevel('INFO')
             ch = logging.StreamHandler(stream_handler)
             ch.setLevel('INFO')
@@ -123,7 +165,10 @@ class TestLogfileBuffer(unittest.TestCase):
             push_active_logger(self.logger)
 
     def get_logs(self):
-        logs = self.capture_output.getvalue()
+        return self.as_list(self.capture_output.getvalue())
+
+    @staticmethod
+    def as_list(logs):
         logs = logs.strip()
         return logs.split("\n")
 
