@@ -1,7 +1,9 @@
 import io
 import logging
 import re
+import threading
 from enum import IntEnum, unique
+from typing import Any
 
 """
 Global variable for tracking the currently active logger. Do not use this
@@ -90,14 +92,9 @@ def to_loglevel(value):
         raise err
 
 
-def configure_logging(loglevel, name, stream_handler=None, formatter_string=None):
+def configure_logging(name, loglevel=None, stream_handler=None, formatter_string=None, parent_thread_id=None, parent_name=None):
     """Configures a logger with a certain name and loglevel.
 
-    Args:
-        stream_handler:
-            Optional. A stream handler to configure logging for
-        formatter_string:
-            A formatter string.
         loglevel:
             The Loglevel to use. Either DEBUG or INFO.
         name:
@@ -107,31 +104,43 @@ def configure_logging(loglevel, name, stream_handler=None, formatter_string=None
         The logger object.
 
     """
-    # create or get logger
-    logger = logging.getLogger(name)
+    # create or get currently active logger
+    if parent_thread_id is None:
+        parent = get_active_logger()
+    else:
+        parent = get_active_logger_in_thread(parent_thread_id)
 
-    if not logger.hasHandlers():
+    if not parent_name:
+        parent_name = parent.name
+
+    # if currently active logger has the same name, just return it
+    if parent_name == name:
+        return parent
+
+    # make sure the new logger is registered as a child of the currently active logger in order to propagate logs
+    if parent_name.endswith("." + name):
+        name = parent_name
+    else:
+        if not name.startswith(parent_name + "."):
+            name = parent_name + "." + name
+
+    logger = logging.getLogger(name)
+    if loglevel is None:
+        logger.setLevel(parent.level)
+    else:
         logger.setLevel(loglevel.name)
 
+    if stream_handler:
         # create formatter
         if not formatter_string:
             formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         else:
             formatter = logging.Formatter(formatter_string)
-
         # create console handler and set level to debug
         # ToDo: different handlers necessary? e.g. logging additional into a file?
-        if not stream_handler:
-            ch = logging.StreamHandler()
-        else:
-            ch = logging.StreamHandler(stream_handler)
-
+        ch = logging.StreamHandler(stream_handler)
         ch.setLevel(loglevel.name)
-
-        # add formatter to ch
         ch.setFormatter(formatter)
-
-        # add ch to logger
         logger.addHandler(ch)
 
     # push logger if not already active
@@ -139,6 +148,28 @@ def configure_logging(loglevel, name, stream_handler=None, formatter_string=None
         push_active_logger(logger)
 
     return logger
+
+
+def configure_root_logger(loglevel):
+    logger = logging.getLogger()
+    # create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # create console handler and set level to debug
+    # ToDo: different handlers necessary? e.g. logging additional into a file?
+    ch = logging.StreamHandler()
+    ch.setLevel(loglevel.name)
+
+    # add formatter to ch
+    ch.setFormatter(formatter)
+
+    # add ch to logger
+    logger.addHandler(ch)
+    set_loglevel(loglevel)
+
+
+def get_loglevel():
+    """Returns the loglevel of the current active logger."""
+    return get_active_logger().level
 
 
 def get_loglevel_name():
@@ -165,7 +196,7 @@ def set_loglevel(loglevel):
 
     # set handler loglevel
     for handler in active_logger.handlers:
-        handler_name = handler.stream.name if hasattr(handler.stream, active_logger.name) else "default handler"
+        handler_name = handler.stream.name if hasattr(handler, "stream") and hasattr(handler.stream, active_logger.name) else "default handler"
 
         active_logger.debug('Set loglevel for handler %s to %s...' % (handler_name, loglevel.name))
         handler.setLevel(loglevel.name)
@@ -206,6 +237,8 @@ class LogfileBuffer(io.StringIO):
                     self.module_logger().debug(message)
                 elif LogLevel.WARNING.name == level:
                     self.module_logger().warning(message)
+                else:
+                    self.module_logger().error(message)
 
                 self.module_logger().name = old_name
 

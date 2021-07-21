@@ -35,7 +35,7 @@ class TestLogging(unittest.TestCase):
     def test_configure_logging(self):
         for idx, level in enumerate(self.loglevels):
             # set correct logging level for logger and all logger.handler for all logging level
-            logger = configure_logging(level, "test_%s" % idx)
+            logger = configure_logging("test_%s" % idx, loglevel=level)
 
             self.assertTrue(logging.getLevelName(logger.level) == level.name)
 
@@ -43,9 +43,9 @@ class TestLogging(unittest.TestCase):
             self.assertEqual(handler_levels, [level.name] * len(handler_levels))
 
     def test_configure_logging_twice(self):
-        logger = configure_logging(self.loglevels[0], "test_logger")
+        logger = configure_logging("test_logger", loglevel=self.loglevels[0])
         self.assertEqual(get_active_logger(), logger)
-        logger2 = configure_logging(self.loglevels[0], "test_logger")
+        logger2 = configure_logging(logger.name, loglevel=self.loglevels[0])
         self.assertEqual(logger, logger2)
         self.assertEqual(get_active_logger(), logger)
         self.assertEqual(pop_active_logger(), logger)
@@ -56,8 +56,8 @@ class TestLogging(unittest.TestCase):
         to_level = LogLevel(1)
 
         # init logger and check if logging level OK
-        logger = configure_logging(init_level, "test")
-        self.assertTrue(logging.getLevelName(logger.level) == init_level.name)
+        logger = configure_logging("test", loglevel=init_level)
+        self.assertEqual(logging.getLevelName(logger.level), init_level.name)
 
         handler_levels = helper_test_configure_logging(logger)
         self.assertEqual(handler_levels, [init_level.name] * len(handler_levels))
