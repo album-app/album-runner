@@ -71,3 +71,16 @@ def run_as_executable(cmd, args):
     ] + args
 
     subprocess.call(cmd)
+
+
+def get_args():
+    """Get the parsed argument from the solution call.
+
+    Returns:
+        The namespace object of the parsed arguments.
+
+    """
+    active_solution = get_active_solution()
+
+    return active_solution.args
+

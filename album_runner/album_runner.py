@@ -1,3 +1,6 @@
+import re
+
+
 class AlbumRunner:
     """Encapsulates a album solution."""
 
@@ -14,6 +17,7 @@ class AlbumRunner:
     # default values
     dependencies = None
     parent = None
+    cite = ""
 
     def __init__(self, attrs=None):
         """sets object attributes in setup_keywords
@@ -45,3 +49,8 @@ class AlbumRunner:
         """Get a specific named argument for this album if it exists."""
         matches = [arg for arg in self['args'] if arg['name'] == k]
         return matches[0]
+
+    def get_identifier(self):
+        identifier = "_".join([x.casefold() for x in [self["group"], self["name"], self["version"]]])
+        identifier = identifier.encode("ascii", "ignore").decode()
+        return re.sub('\W|^(?=\d)', '_', identifier)
