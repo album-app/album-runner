@@ -1,8 +1,8 @@
 import os
 import subprocess
+import tarfile
 from pathlib import Path
-
-import requests
+from urllib.request import urlretrieve
 
 from album_runner import logging, get_active_solution
 
@@ -23,16 +23,17 @@ def download_if_not_exists(url, file_name):
 
     download_dir = active_solution.download_cache_path
     download_path = download_dir.joinpath(file_name)
+
     if download_path.exists():
         module_logger().info(f"Found cache of {url}: {download_path}...")
         return download_path
     if not download_dir.exists():
         download_dir.mkdir(parents=True)
-    module_logger().info(f"Downloading {url} to {download_path}...")
-    downloaded_obj = requests.get(url)
 
-    with open(str(download_path), "wb") as file:
-        file.write(downloaded_obj.content)
+    module_logger().info(f"Downloading {url} to {download_path}...")
+
+    urlretrieve(url, download_path)
+
     return download_path
 
 
@@ -43,11 +44,13 @@ def extract_tar(in_tar, out_dir):
         out_dir: Directory where the TAR file should be extracted to
         in_tar: TAR file to be extracted
     """
-    import tarfile
     out_path = Path(out_dir)
+
     if not out_path.exists():
         out_path.mkdir(parents=True)
+
     module_logger().info(f"Extracting {in_tar} to {out_dir}...")
+
     my_tar = tarfile.open(in_tar)
     my_tar.extractall(out_dir)
     my_tar.close()
@@ -105,6 +108,8 @@ def chdir_repository(path):
     else:
         raise FileNotFoundError("Could not identify %s as repository. Aborting..." % path)
 
+    return path
+
 
 def add_dir_to_path(path):
     """Adds the given path to the pythonpath
@@ -142,11 +147,9 @@ def run_as_executable(cmd, args):
             The arguments to the command.
 
     """
-    from album.core import get_active_solution
-
     active_solution = get_active_solution()
 
-    executable_path = active_solution.environment.path.joinpath("bin", cmd)
+    executable_path = Path(active_solution["environment_path"]).joinpath("bin", cmd)
     cmd = [
               str(executable_path)
           ] + args
