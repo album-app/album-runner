@@ -3,7 +3,6 @@ import logging
 import re
 import threading
 from enum import IntEnum, unique
-from typing import Any
 
 """
 Global variable for tracking the currently active logger. Do not use this

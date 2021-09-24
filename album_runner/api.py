@@ -1,10 +1,11 @@
 import os
 import subprocess
+import sys
 import tarfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
-from album_runner import logging, get_active_solution
+from album_runner import logging, get_active_solution, AlbumRunner
 
 module_logger = logging.get_active_logger
 
@@ -119,7 +120,6 @@ def add_dir_to_path(path):
             The path to be added to the pythonpath.
 
     """
-    import sys
     sys.path.insert(0, str(path))
 
 
@@ -130,11 +130,9 @@ def in_target_environment():
         True when current active python is the album target environment else False.
 
     """
-    import sys
     active_solution = get_active_solution()
 
-    # todo: check whether this works in step-album
-    return True if sys.executable.startswith(active_solution.environment_path) else False
+    return True if sys.executable.startswith(active_solution["environment_path"]) else False
 
 
 def run_as_executable(cmd, args):

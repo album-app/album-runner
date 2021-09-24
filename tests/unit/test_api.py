@@ -5,7 +5,7 @@ from pathlib import Path
 
 from album_runner import AlbumRunner
 from album_runner.api import download_if_not_exists, extract_tar, download_solution_repository, chdir_repository, \
-    add_dir_to_path
+    add_dir_to_path, in_target_environment
 from tests.test_unit_common import TestUnitCommon
 
 
@@ -72,10 +72,21 @@ class TestAPI(TestUnitCommon):
 
         self.assertIn(self.tmp_dir.name, sys.path)
 
-    @unittest.skip("Needs to be implemented!")
     def test_in_target_environment(self):
-        # ToDo: implement
-        pass
+        solution = AlbumRunner(self.get_solution_dict())
+        solution.environment_path = sys.executable
+
+        self.push_test_solution(solution)
+
+        self.assertTrue(in_target_environment())
+
+    def test_in_target_environment_wrong_env(self):
+        solution = AlbumRunner(self.get_solution_dict())
+        solution.environment_path = "fake_env_path"
+
+        self.push_test_solution(solution)
+
+        self.assertFalse(in_target_environment())
 
     @unittest.skip("Needs to be implemented!")
     def test_run_as_executable(self):
