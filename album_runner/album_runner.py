@@ -27,14 +27,10 @@ class AlbumRunner:
             attrs:
                 Dictionary containing the attributes.
         """
-        self.app_path = None
         # Attributes from the solution.py
         for attr in self.setup_keywords:
             if attr in attrs:
                 setattr(self, attr, attrs[attr])
-
-        # add app_path to syspath
-        sys.path.insert(0, getattr(self, 'app_path'))
 
     def __str__(self, indent=2):
         s = '\n'

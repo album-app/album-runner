@@ -29,6 +29,9 @@ def album_runner_init(**attrs):
             decoded_value = attrs[attr].decode(enc)
             setattr(active_solution, attr, decoded_value)
 
+    # add app_path to syspath
+    sys.path.insert(0, getattr(active_solution, 'app_path'))
+
 
 def push_active_solution(solution_object):
     """Pop a solution to the _active_solution stack."""
