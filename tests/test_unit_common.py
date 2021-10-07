@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from album import AlbumRunner, push_active_solution
+from album.runner import AlbumRunner, push_active_solution
 
 
 class TestUnitCommon(unittest.TestCase):
