@@ -1,11 +1,9 @@
-import os
-import subprocess
 import sys
 import tarfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
-from album_runner import logging, get_active_solution, AlbumRunner
+from album_runner import logging, get_active_solution
 
 module_logger = logging.get_active_logger
 
@@ -14,10 +12,10 @@ def download_if_not_exists(url, file_name):
     """Downloads resource if not already cached and returns local resource path.
 
     Args:
-        url: The URL of the download
-        file_name: The local filename of the download
+        url: The URL of the download.
+        file_name: The local filename of the download.
 
-    Returns: The path to the downloaded resource
+    Returns: The path to the downloaded resource.
 
     """
     active_solution = get_active_solution()
@@ -57,70 +55,49 @@ def extract_tar(in_tar, out_dir):
     my_tar.close()
 
 
-def download_solution_repository():
-    """Downloads the repository specified in a solution object, returns repository_path on success.
+# todo: extract_zip
 
-    Additionally changes pythons working directory to the repository_path.
 
-    Returns:
-        The directory of the git directory.
-
-    """
+def get_environment_name():
+    """Returns the environment name the solution runs in."""
     active_solution = get_active_solution()
 
-    download_path = str(Path(active_solution["download_cache_path"]).joinpath(active_solution["name"]))
-
-    r = subprocess.run(["git", "clone", active_solution['git_repo'], download_path])
-
-    if r.returncode != 0:
-        raise RuntimeError("Git clone operation failed! See logs for information!")
-
-    # set python workdir
-    os.chdir(download_path)
-
-    return download_path
+    return Path(active_solution.environment_name)
 
 
-def install_package(module, version=None):
-    """Installs a package in an environment.
-
-    Args:
-        module:
-            The module name or a git like link. (e.g. "git+..." pip installation)
-        version:
-            The version of the package. If none, give, current latest is taken.
-
-    """
+def get_environment_path():
+    """Returns the path of the environment the solution runs in."""
     active_solution = get_active_solution()
-    active_solution.environment.pip_install(module, version=version)
+
+    return Path(active_solution.environment_path)
 
 
-def chdir_repository(path):
-    """Actively changes pythons working directory to the cache path of the solution.
+def get_data_path():
+    """Returns the data path provided for the solution."""
+    active_solution = get_active_solution()
 
-    Args:
-        path:
-            The path to change the working directory to.
-
-    """
-    # assumes repo is up to date!
-    if Path(path).joinpath(".git").exists():
-        os.chdir(path)
-    else:
-        raise FileNotFoundError("Could not identify %s as repository. Aborting..." % path)
-
-    return path
+    return Path(active_solution.data_path)
 
 
-def add_dir_to_path(path):
-    """Adds the given path to the pythonpath
+def get_package_path():
+    """Returns the package path provided for the solution."""
+    active_solution = get_active_solution()
 
-    Args:
-        path:
-            The path to be added to the pythonpath.
+    return Path(active_solution.package_path)
 
-    """
-    sys.path.insert(0, str(path))
+
+def get_app_path():
+    """Returns the app path provided for the solution."""
+    active_solution = get_active_solution()
+
+    return Path(active_solution.app_path)
+
+
+def get_cache_path():
+    """Returns the cache path provided for the solution."""
+    active_solution = get_active_solution()
+
+    return Path(active_solution.cache_path)
 
 
 def in_target_environment():
@@ -133,26 +110,6 @@ def in_target_environment():
     active_solution = get_active_solution()
 
     return True if sys.executable.startswith(active_solution["environment_path"]) else False
-
-
-def run_as_executable(cmd, args):
-    """Runs a solution as executable. Thereby only calling a command on the commandline within the correct environment.
-
-    Args:
-        cmd:
-            The command to run.
-        args:
-            The arguments to the command.
-
-    """
-    active_solution = get_active_solution()
-
-    executable_path = Path(active_solution["environment_path"]).joinpath("bin", cmd)
-    cmd = [
-              str(executable_path)
-          ] + args
-
-    subprocess.call(cmd)
 
 
 def get_args():
