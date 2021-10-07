@@ -1,7 +1,7 @@
 import unittest
 
 
-from tests.unit import test_logging, test_api
+from tests.unit import test_logging, test_api, test_album_runner
 
 
 def main():
@@ -9,7 +9,7 @@ def main():
     suite = unittest.TestSuite()
     # ### unittests
     suite.addTests(loader.loadTestsFromModule(test_api))
-
+    suite.addTests(loader.loadTestsFromModule(test_album_runner))
     suite.addTests(loader.loadTestsFromModule(test_logging))
 
     runner = unittest.TextTestRunner(verbosity=3)

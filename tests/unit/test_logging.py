@@ -1,7 +1,10 @@
+import logging
+import threading
 import unittest
 from io import StringIO
 
-from album.runner.logging import *
+from album.runner.logging import configure_logging, get_active_logger, LogLevel, pop_active_logger, to_loglevel, \
+    set_loglevel, LogfileBuffer, push_active_logger, get_active_logger_in_thread
 
 
 def helper_test_configure_logging(logger):
