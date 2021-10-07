@@ -1,7 +1,7 @@
 import unittest
 from io import StringIO
 
-from album_runner.logging import *
+from album.runner.logging import *
 
 
 def helper_test_configure_logging(logger):

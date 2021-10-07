@@ -3,7 +3,7 @@ import tarfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
-from album_runner import logging, get_active_solution
+from album.runner import logging, get_active_solution
 
 module_logger = logging.get_active_logger
 

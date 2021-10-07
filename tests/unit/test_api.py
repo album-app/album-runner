@@ -2,8 +2,8 @@ import sys
 import unittest
 from pathlib import Path
 
-from album_runner import AlbumRunner
-from album_runner.api import download_if_not_exists, extract_tar, in_target_environment
+from album import AlbumRunner
+from album.runner.api import download_if_not_exists, extract_tar, in_target_environment
 from tests.test_unit_common import TestUnitCommon
 
 
