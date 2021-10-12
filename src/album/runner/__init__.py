@@ -1,7 +1,7 @@
 import sys
 
-from album_runner.album_runner import AlbumRunner
-from album_runner.logging import get_active_logger
+from album.runner.album_runner import AlbumRunner
+from album.runner.logging import get_active_logger
 
 """
 Global variable for tracking the currently active solution. Do not use this 
@@ -11,7 +11,7 @@ global _active_solution
 _active_solution = []
 
 enc = sys.getfilesystemencoding()
-module_logger = logging.get_active_logger
+module_logger = get_active_logger
 
 
 def setup(**attrs):
@@ -28,6 +28,9 @@ def album_runner_init(**attrs):
             # expects value to be a byte-str
             decoded_value = attrs[attr].decode(enc)
             setattr(active_solution, attr, decoded_value)
+
+    # add app_path to syspath
+    sys.path.insert(0, getattr(active_solution, 'app_path'))
 
 
 def push_active_solution(solution_object):

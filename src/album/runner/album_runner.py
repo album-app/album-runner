@@ -12,7 +12,7 @@ class AlbumRunner:
                       'documentation', 'covers', 'sample_inputs',
                       'sample_outputs', 'doi', 'catalog', 'parent', 'steps', 'close', 'title')
 
-    api_keywords = ('environment_path', 'environment_name', 'environment_cache_path', 'download_cache_path')
+    api_keywords = ('environment_path', 'environment_name', 'cache_path', 'package_path', 'data_path', 'app_path')
 
     # default values
     dependencies = None
@@ -53,4 +53,4 @@ class AlbumRunner:
     def get_identifier(self):
         identifier = "_".join([x.casefold() for x in [self["group"], self["name"], self["version"]]])
         identifier = identifier.encode("ascii", "ignore").decode()
-        return re.sub('\W|^(?=\d)', '_', identifier)
+        return re.sub('[^a-zA-Z0-9_.-]', '_', identifier)
