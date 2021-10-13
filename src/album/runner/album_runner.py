@@ -51,6 +51,5 @@ class AlbumRunner:
         return matches[0]
 
     def get_identifier(self):
-        identifier = "_".join([x.casefold() for x in [self["group"], self["name"], self["version"]]])
-        identifier = identifier.encode("ascii", "ignore").decode()
-        return re.sub('[^a-zA-Z0-9_.-]', '_', identifier)
+        identifier = "_".join([self["group"], self["name"], self["version"]])
+        return identifier
