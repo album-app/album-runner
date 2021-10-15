@@ -18,8 +18,6 @@ def download_if_not_exists(url, file_name):
     Returns: The path to the downloaded resource.
 
     """
-    active_solution = get_active_solution()
-
     download_dir = get_cache_path()
     download_path = download_dir.joinpath(file_name)
 
