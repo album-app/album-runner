@@ -18,9 +18,7 @@ def download_if_not_exists(url, file_name):
     Returns: The path to the downloaded resource.
 
     """
-    active_solution = get_active_solution()
-
-    download_dir = active_solution.download_cache_path
+    download_dir = get_cache_path()
     download_path = download_dir.joinpath(file_name)
 
     if download_path.exists():
@@ -109,7 +107,8 @@ def in_target_environment():
     """
     active_solution = get_active_solution()
 
-    return True if sys.executable.startswith(active_solution["environment_path"]) else False
+    return True if sys.executable.startswith(
+        active_solution["environment_path"]) else False
 
 
 def get_args():

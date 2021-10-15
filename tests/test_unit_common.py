@@ -51,7 +51,7 @@ class TestUnitCommon(unittest.TestCase):
     def push_test_solution(self, solution=None):
         if not solution:
             solution = AlbumRunner(self.get_solution_dict())
-        solution.download_cache_path = Path(self.tmp_dir.name)
+        solution.cache_path = Path(self.tmp_dir.name)
         push_active_solution(solution)
 
     @staticmethod
