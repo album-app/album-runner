@@ -1,6 +1,3 @@
-import re
-
-
 class AlbumRunner:
     """Encapsulates a album solution."""
 
