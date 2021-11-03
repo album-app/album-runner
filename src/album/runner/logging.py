@@ -8,7 +8,6 @@ from enum import IntEnum, unique
 Global variable for tracking the currently active logger. Do not use this
 directly instead use get_active_logger()
 """
-global _active_logger
 _active_logger = {}
 
 DEBUG = False
@@ -152,7 +151,7 @@ def configure_logging(name, loglevel=None, stream_handler=None, formatter_string
 def configure_root_logger(loglevel):
     logger = logging.getLogger()
     # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%y/%m/%d %H:%M:%S')
     # create console handler and set level to debug
     # ToDo: different handlers necessary? e.g. logging additional into a file?
     ch = logging.StreamHandler()
