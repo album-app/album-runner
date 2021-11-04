@@ -287,14 +287,26 @@ class LogfileBuffer(io.StringIO):
 
     @staticmethod
     def parse_log(text) -> LogEntry:
-        parts = text.split(" - ")
-        if len(parts) > 2:
-            name = parts[0]
-            level = parts[1]
-            message = parts[2]
-            if len(parts) > 3:
-                for i in range(3, len(parts)):
-                    message += parts[i]
+        parts = (text).split(" - ")
+        if len(parts) > 1:
+            if len(parts) == 2:
+                if parts[0] in [l.name for l in LogLevel]:
+                    # no logger name
+                    name = None
+                    level = parts[0]
+                    message = parts[1]
+                else:
+                    # empty message
+                    name = parts[0]
+                    level = parts[1].rstrip(" -")
+                    message = ""
+            else:
+                name = parts[0]
+                level = parts[1]
+                message = parts[2]
+                if len(parts) > 3:
+                    for i in range(3, len(parts)):
+                        message += parts[i]
             return LogEntry(name, level, message)
 
 
