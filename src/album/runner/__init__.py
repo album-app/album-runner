@@ -1,7 +1,7 @@
 import sys
 
 from album.runner.album_runner import AlbumRunner
-from album.runner.logging import get_active_logger
+from album.runner.album_logging import get_active_logger
 
 """
 Global variable for tracking the currently active solution. Do not use this 

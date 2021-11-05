@@ -3,7 +3,7 @@ import threading
 import unittest
 from io import StringIO
 
-from album.runner.logging import configure_logging, get_active_logger, LogLevel, pop_active_logger, to_loglevel, \
+from album.runner.album_logging import configure_logging, get_active_logger, LogLevel, pop_active_logger, to_loglevel, \
     set_loglevel, LogfileBuffer, push_active_logger, get_active_logger_in_thread
 
 

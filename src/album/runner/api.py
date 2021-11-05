@@ -3,9 +3,9 @@ import tarfile
 from pathlib import Path
 from urllib.request import urlretrieve
 
-from album.runner import logging, get_active_solution
+from album.runner import album_logging, get_active_solution
 
-module_logger = logging.get_active_logger
+module_logger = album_logging.get_active_logger
 
 
 def download_if_not_exists(url, file_name):
