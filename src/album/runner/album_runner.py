@@ -3,7 +3,7 @@ class AlbumRunner:
 
     setup_keywords = ('group', 'name', 'version', 'description', 'url', 'license',
                       'min_album_version', 'tested_album_version', 'args',
-                      'init', 'run', 'install', 'pre_test', 'test', 'author', 'author_email',
+                      'init', 'run', 'install', 'uninstall', 'pre_test', 'test', 'author', 'author_email',
                       'long_description', 'git_repo', 'dependencies',
                       'timestamp', 'format_version', 'authors', 'cite', 'tags',
                       'documentation', 'covers', 'sample_inputs',
