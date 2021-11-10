@@ -5,11 +5,9 @@ class AlbumRunner:
         'group', 'name', 'version', 'description', 'url', 'license',
         'min_album_version', 'tested_album_version', 'args',
         'init', 'run', 'install', 'uninstall', 'pre_test', 'test',
-        'author', 'author_email',
-        'long_description', 'git_repo', 'dependencies',
+        'author', 'author_email', 'git_repo', 'dependencies',
         'timestamp', 'format_version', 'authors', 'cite', 'tags',
-        'documentation', 'covers', 'sample_inputs',
-        'sample_outputs', 'doi', 'catalog', 'parent', 'steps', 'close', 'title'
+        'documentation', 'covers', 'doi', 'catalog', 'parent', 'steps', 'close', 'title'
     ]
 
     # CAUTION: deploy_keys also used for resolving. Make sure keys do not contain callable values.
@@ -31,12 +29,16 @@ class AlbumRunner:
     dependencies = None
     parent = None
     doi = None
+    title = None
+    description = None
+    license = None
+    git_repo = None
 
     args = []
     steps = []
     tags = []
     authors = []
-    cite = ""
+    cite = []
 
     # API keywords
     environment_path = None
