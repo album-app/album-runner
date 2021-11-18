@@ -2,43 +2,60 @@ class AlbumRunner:
     """Encapsulates a album solution."""
 
     setup_keywords = [
-        'group', 'name', 'version', 'description', 'url', 'license',
-        'min_album_version', 'tested_album_version', 'args',
-        'init', 'run', 'install', 'uninstall', 'pre_test', 'test',
+        # identity - mandatory
+        'group', 'name', 'version',
+        # lambdas
+        'init', 'run', 'install', 'uninstall', 'pre_test', 'test', 'close',
+        # dependencies
+        'parent',  'steps',
+        # others
+        'description', 'url', 'license', 'album_version', 'album_api_version', 'args',
         'author', 'author_email', 'git_repo', 'dependencies',
-        'timestamp', 'format_version', 'authors', 'cite', 'tags',
-        'documentation', 'covers', 'doi', 'catalog', 'parent', 'steps', 'close', 'title'
+        'timestamp', 'authors', 'cite', 'tags', 'contact',
+        'documentation', 'covers', 'doi', 'catalog', 'title', 'acknowledgement'
     ]
 
     # CAUTION: deploy_keys also used for resolving. Make sure keys do not contain callable values.
     # If they do, add "to_string" method for @get_deploy_dict. Example see @_remove_action_from_args.
     deploy_keys = [
-        'group', 'name', 'description', 'version', 'format_version', 'tested_album_version',
-        'min_album_version', 'license', 'git_repo', 'authors', 'cite', 'tags', 'documentation',
+        'group', 'name', 'description', 'version', 'album_api_version',
+        'album_version', 'license', 'git_repo', 'authors', 'cite', 'tags', 'documentation',
         'covers', 'args', 'title', 'timestamp'
     ]
 
     api_keywords = ['environment_path', 'environment_name', 'cache_path', 'package_path', 'data_path', 'app_path']
 
-    # default values
+    # lambdas
+    init = None
+    run = None
+    install = None
+    uninstall = None
+    pre_test = None
+    test = None
+    close = None
+
+    # solution metadata
     group = None
     name = None
-    min_album_version = None
-    tested_album_version = None
     version = None
     dependencies = None
     parent = None
     doi = None
     title = None
-    description = None
     license = None
     git_repo = None
+    acknowledgement = None
 
     args = []
     steps = []
     tags = []
     authors = []
     cite = []
+    description = []
+
+    # framework metadata
+    album_version = None
+    album_api_version = None
 
     # API keywords
     environment_path = None
@@ -51,14 +68,6 @@ class AlbumRunner:
     # core keywords
     coordinates = None
     environment = None
-
-    # lambdas
-    init = None
-    run = None
-    install = None
-    uninstall = None
-    pre_test = None
-    test = None
 
     def __init__(self, attrs=None):
         """sets object attributes in setup_keywords
