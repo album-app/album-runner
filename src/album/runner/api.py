@@ -1,6 +1,7 @@
 import sys
 import tarfile
 from pathlib import Path
+from typing import Optional
 from urllib.request import urlretrieve
 
 from album.runner import album_logging, get_active_solution
@@ -56,49 +57,43 @@ def extract_tar(in_tar, out_dir):
 # todo: extract_zip
 
 
-def get_environment_name():
+def get_environment_name() -> str:
     """Returns the environment name the solution runs in."""
     active_solution = get_active_solution()
+    return active_solution.installation.environment_name
 
-    return Path(active_solution.environment_name)
 
-
-def get_environment_path():
+def get_environment_path() -> Path:
     """Returns the path of the environment the solution runs in."""
     active_solution = get_active_solution()
+    return Path(active_solution.installation.environment_path)
 
-    return Path(active_solution.environment_path)
 
-
-def get_data_path():
+def get_data_path() -> Path:
     """Returns the data path provided for the solution."""
     active_solution = get_active_solution()
+    return Path(active_solution.installation.data_path)
 
-    return Path(active_solution.data_path)
 
-
-def get_package_path():
+def get_package_path() -> Path:
     """Returns the package path provided for the solution."""
     active_solution = get_active_solution()
+    return Path(active_solution.installation.package_path)
 
-    return Path(active_solution.package_path)
 
-
-def get_app_path():
+def get_app_path() -> Path:
     """Returns the app path provided for the solution."""
     active_solution = get_active_solution()
+    return Path(active_solution.installation.app_path)
 
-    return Path(active_solution.app_path)
 
-
-def get_cache_path():
+def get_cache_path() -> Path:
     """Returns the cache path provided for the solution."""
     active_solution = get_active_solution()
+    return Path(active_solution.installation.user_cache_path)
 
-    return Path(active_solution.cache_path)
 
-
-def in_target_environment():
+def in_target_environment() -> bool:
     """Gives the boolean information whether or not current python is the python from the album target environment.
 
     Returns:
@@ -108,7 +103,7 @@ def in_target_environment():
     active_solution = get_active_solution()
 
     return True if sys.executable.startswith(
-        active_solution["environment_path"]) else False
+        active_solution.installation.environment_path) else False
 
 
 def get_args():

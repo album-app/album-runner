@@ -1,6 +1,5 @@
 import io
 import logging
-import re
 import threading
 from enum import IntEnum, unique
 
@@ -182,8 +181,6 @@ def set_loglevel(loglevel):
     Args:
         loglevel:
             The Loglevel to use. Either DEBUG or INFO.
-        name:
-            The name of the logger.
 
     """
     # logger loglevel
@@ -287,7 +284,7 @@ class LogfileBuffer(io.StringIO):
 
     @staticmethod
     def parse_log(text) -> LogEntry:
-        parts = (text).split(" - ")
+        parts = text.split(" - ")
         if len(parts) > 1:
             if len(parts) == 2:
                 if parts[0] in [l.name for l in LogLevel]:

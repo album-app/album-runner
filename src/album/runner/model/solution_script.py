@@ -2,14 +2,14 @@ import json
 import sys
 from argparse import ArgumentError
 
-from album.runner import AlbumRunner, album_logging
+from album.runner import Solution, album_logging
 
 module_logger = album_logging.get_active_logger
 enc = sys.getfilesystemencoding()
 
 
 class SolutionScript:
-    def __init__(self, solution_object: AlbumRunner, execution_block, argv):
+    def __init__(self, solution_object: Solution, execution_block, argv):
         self.solution_object = solution_object
         self.execution_block = execution_block
         self.argv = argv
@@ -33,7 +33,7 @@ class SolutionScript:
         # create logging
         parent_name = album_logging.get_active_logger().name
         header += "configure_logging(\"%s\", loglevel=%s, stream_handler=sys.stdout, " % (
-            self.solution_object['name'], album_logging.to_loglevel(album_logging.get_loglevel_name())
+            self.solution_object.setup.name, album_logging.to_loglevel(album_logging.get_loglevel_name())
         ) + "formatter_string=\"" + r"%(name)s - %(levelname)s - %(message)s" + "\", parent_name=\"%s\")\n" % parent_name
         header += "print = module_logger().info\n"
         # This could have an issue with nested quotes
@@ -44,24 +44,26 @@ class SolutionScript:
 
     def _create_body(self):
         # add the album script
-        script = self.solution_object['script']
+        script = self.solution_object.script
         # init routine
         # script += "\nget_active_solution().init()\n" THIS FEATURE IS TEMPORARY DISABLED
         # API access
         script += self._api_access()
 
-        script += self._append_arguments(self.solution_object['args'])
+        if self.solution_object.setup.args:
+            script += self._append_arguments(self.solution_object.setup.args)
         return script
 
     def _api_access(self):
         # mapping from internal paths to API paths for the user
         script = "album_runner_init("
-        script += "environment_path=" + "{}".format(str(self.solution_object.environment.path).encode(enc)) + ", "
-        script += "environment_name=" + "{}".format(str(self.solution_object.environment.name).encode(enc)) + ", "
-        script += "data_path=" + "{}".format(str(self.solution_object.data_path).encode(enc)) + ", "
-        script += "package_path=" + "{}".format(str(self.solution_object.package_path).encode(enc)) + ", "
-        script += "app_path=" + "{}".format(str(self.solution_object.app_path).encode(enc)) + ", "
-        script += "cache_path=" + "{}".format(str(self.solution_object.cache_path).encode(enc))
+        script += "environment_path=" + "{}".format(str(self.solution_object.installation.environment_path).encode(enc)) + ", "
+        script += "environment_name=" + "{}".format(str(self.solution_object.installation.environment_name).encode(enc)) + ", "
+        script += "data_path=" + "{}".format(str(self.solution_object.installation.data_path).encode(enc)) + ", "
+        script += "package_path=" + "{}".format(str(self.solution_object.installation.package_path).encode(enc)) + ", "
+        script += "app_path=" + "{}".format(str(self.solution_object.installation.app_path).encode(enc)) + ", "
+        script += "user_cache_path=" + "{}".format(str(self.solution_object.installation.user_cache_path).encode(enc)) + ", "
+        script += "internal_cache_path=" + "{}".format(str(self.solution_object.installation.internal_cache_path).encode(enc))
         script += ")\n"
         return script
 
@@ -86,12 +88,12 @@ class SolutionScript:
         else:
             message = 'Argument keyword \'%s\' not supported!' % args
             module_logger().error(message)
-            raise ArgumentError(message)
+            raise ArgumentError(argument=args, message=message)
 
     def _handle_args_list(self, args):
         module_logger().debug('Add argument parsing for album solution to runtime script...')
         # Add the argument handling
-        script = "\nparser = argparse.ArgumentParser(description='Album Run %s')\n" % self.solution_object['name']
+        script = "\nparser = argparse.ArgumentParser(description='Album Run %s')\n" % self.solution_object.setup.name
         for arg in args:
             if 'action' in arg.keys():
                 script += self._create_action_class_string(arg)

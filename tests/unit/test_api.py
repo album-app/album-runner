@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 
-from album.runner import AlbumRunner
+from album.runner import Solution
 from album.runner.api import download_if_not_exists, extract_tar, in_target_environment
 
 from tests.test_unit_common import TestUnitCommon
@@ -59,16 +59,16 @@ class TestAPI(TestUnitCommon):
         self.assertTrue(Path(self.tmp_dir.name).joinpath("myfile").stat().st_size > 0)
 
     def test_in_target_environment(self):
-        solution = AlbumRunner(self.get_solution_dict())
-        solution.environment_path = sys.executable
+        solution = Solution(self.get_solution_dict())
+        solution.installation.environment_path = sys.executable
 
         self.push_test_solution(solution)
 
         self.assertTrue(in_target_environment())
 
     def test_in_target_environment_wrong_env(self):
-        solution = AlbumRunner(self.get_solution_dict())
-        solution.environment_path = "fake_env_path"
+        solution = Solution(self.get_solution_dict())
+        solution.installation.environment_path = "fake_env_path"
 
         self.push_test_solution(solution)
 
