@@ -1,6 +1,6 @@
 import abc
 
-from album.runner import AlbumRunner
+from album.runner import Solution, get_active_logger
 from album.runner.model.solution_script import SolutionScript
 
 
@@ -11,11 +11,11 @@ class ScriptCreator(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_execution_block(self, solution_object) -> str:
+    def get_execution_block(self, solution_object: Solution) -> str:
         """The custom code for all scripts created by this class"""
         pass
 
-    def create_script(self, solution_object, argv) -> str:
+    def create_script(self, solution_object: Solution, argv) -> str:
         """Creates the script with the execution_block of the concrete instance of the class"""
         execution_block = self.get_execution_block(solution_object)
 
@@ -29,7 +29,7 @@ class ScriptCreatorInstall(ScriptCreator):
         super().__init__()
 
     def get_execution_block(self, _):
-        return "\nget_active_solution().install()\n"
+        return "\nget_active_solution().setup.install()\n"
 
 
 class ScriptCreatorUnInstall(ScriptCreator):
@@ -37,7 +37,7 @@ class ScriptCreatorUnInstall(ScriptCreator):
         super().__init__()
 
     def get_execution_block(self, _):
-        return "\nget_active_solution().uninstall()\n"
+        return "\nget_active_solution().setup.uninstall()\n"
 
 
 class ScriptCreatorRun(ScriptCreator):
@@ -53,22 +53,22 @@ class ScriptCreatorRun(ScriptCreator):
     def reset_callback(self):
         self.execution_callback = lambda: ""
 
-    def get_execution_block(self, solution_object: AlbumRunner):
-        execution_block = "\nmodule_logger().info(\"Starting %s\")" % solution_object["name"]
+    def get_execution_block(self, solution_object: Solution):
+        execution_block = "\nmodule_logger().info(\"Starting %s\")" % solution_object.setup.name
         execution_block += "\nmodule_logger().info(\"\")\n"
-        if solution_object['run'] and callable(solution_object['run']):
-            execution_block += "\nget_active_solution().run()\n"
+        if solution_object.setup.run and callable(solution_object.setup.run):
+            execution_block += "\nget_active_solution().setup.run()\n"
         else:
-            raise ValueError("No \"run\" routine specified for solution \"%s\"! Aborting..." % solution_object["name"])
+            get_active_logger().warn("No \"run\" routine configured for solution \"%s\"." % solution_object.setup.name)
 
         # used to insert code blocks during runtime after run but before close. Used when solution serves as parent.
         execution_block += self.execution_callback()
 
-        if solution_object['close'] and callable(solution_object['close']):
-            execution_block += "\nget_active_solution().close()\n"
+        if solution_object.setup.close and callable(solution_object.setup.close):
+            execution_block += "\nget_active_solution().setup.close()\n"
 
         execution_block += "\nmodule_logger().info(\"\")"
-        execution_block += "\nmodule_logger().info(\"Finished %s\")\n" % solution_object["name"]
+        execution_block += "\nmodule_logger().info(\"Finished %s\")\n" % solution_object.setup.name
 
         if self.pop_solution:
             execution_block += "\npop_active_solution()\n"
@@ -83,7 +83,7 @@ class ScriptCreatorRunWithParent(ScriptCreatorRun):
         self.child_solution_list = child_solution_list
         self.child_args = child_args
 
-    def get_execution_block(self, solution_object) -> str:
+    def get_execution_block(self, solution_object: Solution) -> str:
         self.parent_script_creator.execution_callback = self.create_child_scripts
         execution_block = self.parent_script_creator.get_execution_block(solution_object)
         self.parent_script_creator.reset_callback()
@@ -105,15 +105,15 @@ class ScriptTestCreator(ScriptCreatorRun):
     def __init__(self):
         super().__init__()
 
-    def get_execution_block(self, solution_object):
-        execution_block = "\nd = get_active_solution().pre_test()\n"
+    def get_execution_block(self, solution_object: Solution):
+        execution_block = "\nd = get_active_solution().setup.pre_test()\n"
         execution_block += "\nsys.argv = sys.argv + [\"=\".join([c, d[c]]) for c in d]\n"
 
         # parse args again after pre_test() routine if necessary.
-        if not solution_object["args"] == "pass-through":
+        if not solution_object.setup["args"] == "pass-through":
             execution_block += "\nget_active_solution().args = parser.parse_args()\n"
 
         execution_block += super().get_execution_block(solution_object)
-        execution_block += "\nget_active_solution().test()\n"
+        execution_block += "\nget_active_solution().setup.test()\n"
 
         return execution_block
