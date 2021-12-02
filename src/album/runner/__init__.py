@@ -11,7 +11,6 @@ directly instead use get_active_solution()
 _active_solution = []
 
 enc = sys.getfilesystemencoding()
-module_logger = get_active_logger
 
 
 def setup(**attrs):

@@ -54,8 +54,8 @@ class ScriptCreatorRun(ScriptCreator):
         self.execution_callback = lambda: ""
 
     def get_execution_block(self, solution_object: Solution):
-        execution_block = "\nmodule_logger().info(\"Starting %s\")" % solution_object.setup.name
-        execution_block += "\nmodule_logger().info(\"\")\n"
+        execution_block = "\nget_active_logger().info(\"Starting %s\")" % solution_object.setup.name
+        execution_block += "\nget_active_logger().info(\"\")\n"
         if solution_object.setup.run and callable(solution_object.setup.run):
             execution_block += "\nget_active_solution().setup.run()\n"
         else:
@@ -67,8 +67,8 @@ class ScriptCreatorRun(ScriptCreator):
         if solution_object.setup.close and callable(solution_object.setup.close):
             execution_block += "\nget_active_solution().setup.close()\n"
 
-        execution_block += "\nmodule_logger().info(\"\")"
-        execution_block += "\nmodule_logger().info(\"Finished %s\")\n" % solution_object.setup.name
+        execution_block += "\nget_active_logger().info(\"\")"
+        execution_block += "\nget_active_logger().info(\"Finished %s\")\n" % solution_object.setup.name
 
         if self.pop_solution:
             execution_block += "\npop_active_solution()\n"
