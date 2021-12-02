@@ -35,7 +35,6 @@ class SolutionScript:
         header += "configure_logging(\"%s\", loglevel=%s, stream_handler=sys.stdout, " % (
             self.solution_object.setup.name, album_logging.to_loglevel(album_logging.get_loglevel_name())
         ) + "formatter_string=\"" + r"%(name)s - %(levelname)s - %(message)s" + "\", parent_name=\"%s\")\n" % parent_name
-        header += "print = module_logger().info\n"
         # This could have an issue with nested quotes
         module_logger().debug("Add sys.argv arguments to runtime script: %s..." % ", ".join(self.argv))
         header += "sys.argv = json.loads(r'%s')\n" % json.dumps(self.argv)
