@@ -3,8 +3,8 @@ import sys
 from argparse import ArgumentError
 
 from album.runner import Solution, album_logging
+from album.runner.album_logging import get_active_logger
 
-module_logger = album_logging.get_active_logger
 enc = sys.getfilesystemencoding()
 
 
@@ -28,16 +28,14 @@ class SolutionScript:
             "import argparse\n"
             "from album.runner import *\n"
             "from album.runner.album_logging import configure_logging, LogLevel, get_active_logger\n"
-            "module_logger = get_active_logger\n"
         )
         # create logging
-        parent_name = album_logging.get_active_logger().name
+        parent_name = get_active_logger().name
         header += "configure_logging(\"%s\", loglevel=%s, stream_handler=sys.stdout, " % (
             self.solution_object.setup.name, album_logging.to_loglevel(album_logging.get_loglevel_name())
         ) + "formatter_string=\"" + r"%(name)s - %(levelname)s - %(message)s" + "\", parent_name=\"%s\")\n" % parent_name
-        header += "print = module_logger().info\n"
         # This could have an issue with nested quotes
-        module_logger().debug("Add sys.argv arguments to runtime script: %s..." % ", ".join(self.argv))
+        get_active_logger().debug("Add sys.argv arguments to runtime script: %s..." % ", ".join(self.argv))
         header += "sys.argv = json.loads(r'%s')\n" % json.dumps(self.argv)
 
         return header
@@ -69,7 +67,7 @@ class SolutionScript:
 
     def _append_arguments(self, args):
         script = ""
-        module_logger().debug(
+        get_active_logger().debug(
             'Read out arguments in album solution and add to runtime script...')
         # special argument parsing cases
         if isinstance(args, str):
@@ -82,16 +80,16 @@ class SolutionScript:
     def _handle_args_string(args):
         # pass through to module
         if args == 'pass-through':
-            module_logger().info(
+            get_active_logger().info(
                 'Argument parsing not specified in album solution. Passing arguments through...'
             )
         else:
             message = 'Argument keyword \'%s\' not supported!' % args
-            module_logger().error(message)
+            get_active_logger().error(message)
             raise ArgumentError(argument=args, message=message)
 
     def _handle_args_list(self, args):
-        module_logger().debug('Add argument parsing for album solution to runtime script...')
+        get_active_logger().debug('Add argument parsing for album solution to runtime script...')
         # Add the argument handling
         script = "\nparser = argparse.ArgumentParser(description='Album Run %s')\n" % self.solution_object.setup.name
         for arg in args:
@@ -105,7 +103,7 @@ class SolutionScript:
         keys = arg.keys()
 
         if 'default' in keys and 'action' in keys:
-            module_logger().warning("Default values cannot be automatically set when an action is provided! "
+            get_active_logger().warning("Default values cannot be automatically set when an action is provided! "
                                     "Ignoring default values...")
 
         parse_arg = "parser.add_argument('--%s', " % arg['name']
