@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from album.runner import Solution, push_active_solution
+from album.runner.api import push_active_solution
+from album.runner.core.model.solution import Solution
 
 
 class TestUnitCommon(unittest.TestCase):
@@ -51,7 +52,7 @@ class TestUnitCommon(unittest.TestCase):
     def push_test_solution(self, solution=None):
         if not solution:
             solution = Solution(self.get_solution_dict())
-        solution.installation.user_cache_path = Path(self.tmp_dir.name)
+        solution.installation()._user_cache_path = Path(self.tmp_dir.name)
         push_active_solution(solution)
 
     @staticmethod
