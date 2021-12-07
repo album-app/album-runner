@@ -1,5 +1,6 @@
 import io
 import logging
+import re
 import threading
 from enum import IntEnum, unique
 
@@ -44,7 +45,7 @@ def get_active_logger_in_thread(thread_ident):
 
 def pop_active_logger():
     """Pop the currently active logger from the _active_solution stack."""
-    
+
     stack = thread_stack()
     if len(stack) > 0:
         logger = stack.pop(0)
@@ -89,7 +90,8 @@ def to_loglevel(value):
         raise err
 
 
-def configure_logging(name, loglevel=None, stream_handler=None, formatter_string=None, parent_thread_id=None, parent_name=None):
+def configure_logging(name, loglevel=None, stream_handler=None, formatter_string=None, parent_thread_id=None,
+                      parent_name=None):
     """Configures a logger with a certain name and loglevel.
 
         loglevel:
@@ -191,7 +193,8 @@ def set_loglevel(loglevel):
 
     # set handler loglevel
     for handler in active_logger.handlers:
-        handler_name = handler.stream.name if hasattr(handler, "stream") and hasattr(handler.stream, active_logger.name) else "default handler"
+        handler_name = handler.stream.name if hasattr(handler, "stream") and hasattr(handler.stream,
+                                                                                     active_logger.name) else "default handler"
 
         active_logger.debug('Set loglevel for handler %s to %s...' % (handler_name, loglevel.name))
         handler.setLevel(loglevel.name)
@@ -216,9 +219,8 @@ class LogfileBuffer(io.StringIO):
         self.module_logger = get_active_logger
         self.message_formatter = message_formatter
 
-    def write(self, s: str) -> int:
-
-        messages = self.split_messages(s)
+    def write(self, input_string: str) -> int:
+        messages = self.split_messages(input_string)
 
         for m in messages:
             s = self.tabulate_multi_lines(m)
@@ -284,26 +286,21 @@ class LogfileBuffer(io.StringIO):
 
     @staticmethod
     def parse_log(text) -> LogEntry:
-        parts = text.split(" - ")
-        if len(parts) > 1:
-            if len(parts) == 2:
-                if parts[0] in [l.name for l in LogLevel]:
-                    # no logger name
-                    name = None
-                    level = parts[0]
-                    message = parts[1]
-                else:
-                    # empty message
-                    name = parts[0]
-                    level = parts[1].rstrip(" -")
-                    message = ""
+        # regex for log level
+        regex_log_level = "|".join([l.name for l in LogLevel])
+        # regex for log message.
+        regex_text = '([^ - ]+) - (%s) -([\s\S]+)?' % regex_log_level
+        # search
+        r = re.search(regex_text, text)
+
+        if r:
+            name = r.group(1)
+            level = r.group(2)
+            message = r.group(3)
+            if message:
+                message = r.group(3).strip(" ")
             else:
-                name = parts[0]
-                level = parts[1]
-                message = parts[2]
-                if len(parts) > 3:
-                    for i in range(3, len(parts)):
-                        message += parts[i]
+                message = ""
             return LogEntry(name, level, message)
 
 
