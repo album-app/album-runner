@@ -218,6 +218,7 @@ class LogfileBuffer(io.StringIO):
         super().__init__()
         self.module_logger = get_active_logger
         self.message_formatter = message_formatter
+        self.leftover_message = None
 
     def write(self, input_string: str) -> int:
         messages = self.split_messages(input_string)
@@ -257,10 +258,23 @@ class LogfileBuffer(io.StringIO):
         # init empty return val
         messages = []
 
-        # split and strip
-        split_s = [l.strip() for l in s.split("\n")]
+        if self.leftover_message:
+            s = self.leftover_message + s
+            self.leftover_message = None
 
-        for l in split_s:
+        # split
+        split_s = s.split("\n")
+
+        # strip - all message that are not interrupted
+        split_i = [l.strip() for l in split_s[:-1]]
+
+        # last message might be interrupted through buffer-size
+        if not split_s[-1].endswith("\n"):
+            self.leftover_message = split_s[-1]
+        else:
+            split_i.append(split_s[-1].strip())
+
+        for l in split_i:
             log_entry = self.parse_log(l)
 
             if log_entry:  # pattern found
