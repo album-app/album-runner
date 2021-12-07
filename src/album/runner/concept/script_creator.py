@@ -7,8 +7,8 @@ from album.runner.model.solution_script import SolutionScript
 class ScriptCreator(abc.ABC):
     """Abstract class for all ScriptCreator classes. Holds methods shared across all ScriptCreator classes."""
 
-    def __init__(self):
-        pass
+    def __init__(self, append_arguments=True):
+        self.append_arguments = append_arguments
 
     @abc.abstractmethod
     def get_execution_block(self, solution_object: Solution) -> str:
@@ -19,14 +19,14 @@ class ScriptCreator(abc.ABC):
         """Creates the script with the execution_block of the concrete instance of the class"""
         execution_block = self.get_execution_block(solution_object)
 
-        script = SolutionScript(solution_object, execution_block, argv)
+        script = SolutionScript(solution_object, execution_block, argv, self.append_arguments)
 
         return script.create_solution_script()
 
 
 class ScriptCreatorInstall(ScriptCreator):
     def __init__(self):
-        super().__init__()
+        super().__init__(append_arguments=False)
 
     def get_execution_block(self, _):
         return "\nget_active_solution().setup.install()\n"
@@ -34,7 +34,7 @@ class ScriptCreatorInstall(ScriptCreator):
 
 class ScriptCreatorUnInstall(ScriptCreator):
     def __init__(self):
-        super().__init__()
+        super().__init__(append_arguments=False)
 
     def get_execution_block(self, _):
         return "\nget_active_solution().setup.uninstall()\n"
@@ -55,7 +55,6 @@ class ScriptCreatorRun(ScriptCreator):
 
     def get_execution_block(self, solution_object: Solution):
         execution_block = "\nget_active_logger().info(\"Starting %s\")" % solution_object.setup.name
-        execution_block += "\nget_active_logger().info(\"\")\n"
         if solution_object.setup.run and callable(solution_object.setup.run):
             execution_block += "\nget_active_solution().setup.run()\n"
         else:
@@ -67,7 +66,6 @@ class ScriptCreatorRun(ScriptCreator):
         if solution_object.setup.close and callable(solution_object.setup.close):
             execution_block += "\nget_active_solution().setup.close()\n"
 
-        execution_block += "\nget_active_logger().info(\"\")"
         execution_block += "\nget_active_logger().info(\"Finished %s\")\n" % solution_object.setup.name
 
         if self.pop_solution:

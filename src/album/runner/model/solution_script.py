@@ -9,10 +9,11 @@ enc = sys.getfilesystemencoding()
 
 
 class SolutionScript:
-    def __init__(self, solution_object: Solution, execution_block, argv):
+    def __init__(self, solution_object: Solution, execution_block, argv, append_arguments=True):
         self.solution_object = solution_object
         self.execution_block = execution_block
         self.argv = argv
+        self.append_arguments = append_arguments
 
     def create_solution_script(self):
         script = self._create_header()
@@ -26,6 +27,7 @@ class SolutionScript:
             "import sys\n"
             "import json\n"
             "import argparse\n"
+            "import time\n"
             "from album.runner import *\n"
             "from album.runner.album_logging import configure_logging, LogLevel, get_active_logger\n"
         )
@@ -49,7 +51,8 @@ class SolutionScript:
         script += self._api_access()
 
         if self.solution_object.setup.args:
-            script += self._append_arguments(self.solution_object.setup.args)
+            if self.append_arguments:
+                script += self._append_arguments(self.solution_object.setup.args)
         return script
 
     def _api_access(self):
@@ -91,7 +94,7 @@ class SolutionScript:
     def _handle_args_list(self, args):
         get_active_logger().debug('Add argument parsing for album solution to runtime script...')
         # Add the argument handling
-        script = "\nparser = argparse.ArgumentParser(description='Album Run %s')\n" % self.solution_object.setup.name
+        script = "\nparser = argparse.ArgumentParser(description='album run %s')\n" % self.solution_object.setup.name
         for arg in args:
             if 'action' in arg.keys():
                 script += self._create_action_class_string(arg)
