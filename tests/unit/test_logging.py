@@ -101,7 +101,7 @@ class TestLogfileBuffer(unittest.TestCase):
         self.assertIsNotNone(get_active_logger())
 
         log_buffer = LogfileBuffer()
-        log_buffer.write("app1 - WARNING - message\n over \n several \n lines\napp1 - INFO - i\no\ns\nl")
+        log_buffer.write("app1 - WARNING - message\n over \n several \n lines\napp1 - INFO - i\no\ns\nl\n")
 
         logs = self.get_logs()
         self.assertIn("app1 - WARNING - message", logs[0])
@@ -153,7 +153,7 @@ class TestLogfileBuffer(unittest.TestCase):
         push_active_logger(logger)
         log_buffer = LogfileBuffer()
         for i in range(0, 100):
-            log_buffer.write(name + "_" + str(i))
+            log_buffer.write(name + "_" + str(i) + "\n")  # print, logger.info() should all end with a newline
 
     def configure_test_logging(self, stream_handler):
         self.logger = logging.getLogger("unitTest")
