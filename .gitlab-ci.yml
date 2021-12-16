@@ -44,7 +44,7 @@
     - echo $PATH
     - conda create -n album-runner python=3.6 pip
     - source $tmpdir/miniconda/bin/activate
-    - conda activate album
+    - conda activate album-runner
     - python -V
     - pip install .
   after_script:
@@ -176,5 +176,5 @@ unit tests windows:
   extends: .windows_base_template
   stage: test
   script:
-    - $cmnd = powershell.exe -command {conda create -n testEnv python=3.6 pip 2>&1 | Write-Host; conda activate testEnv 2>&1 | Write-Host; pip install --no-cache-dir https://gitlab.com/album-app/album-runner/-/archive/$env:CI_COMMIT_REF_NAME/album-runner-$env:CI_COMMIT_REF_NAME.zip 2>&1 | Write-Host; python -m unittest tests\run_all.py 2>&1 | Write-Host; exit(0)}
+    - $cmnd = powershell.exe -command {conda create -n album-runner python=3.6 pip 2>&1 | Write-Host; conda activate album-runner 2>&1 | Write-Host; pip install --no-cache-dir . 2>&1 | Write-Host; python -m unittest tests\run_all.py 2>&1 | Write-Host; exit(0)}
     - if ("Success" -in $cmnd[-2..-1]) {exit(0)} else {exit(1)}
