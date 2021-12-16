@@ -15,8 +15,10 @@ def main():
     runner = unittest.TextTestRunner(verbosity=3)
     result = runner.run(suite)
     if result.wasSuccessful():
+        print("Success")
         exit(0)
     else:
+        print("Failed")
         exit(1)
 
 
