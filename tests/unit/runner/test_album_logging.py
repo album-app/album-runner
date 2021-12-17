@@ -138,6 +138,9 @@ class TestLogfileBuffer(TestUnitCommon):
         thread1.join()
         thread2.join()
 
+        self.assertFalse(thread1.is_alive())
+        self.assertFalse(thread2.is_alive())
+
         logger1 = get_active_logger_in_thread(thread1.ident)
         logger2 = get_active_logger_in_thread(thread2.ident)
 
