@@ -1,4 +1,5 @@
 import logging
+import sys
 import threading
 import unittest
 from io import StringIO
@@ -124,6 +125,7 @@ class TestLogfileBuffer(TestUnitCommon):
         self.assertEqual("\t\ts", logs[6])
         self.assertEqual("\t\tl", logs[7])
 
+    @unittest.skipIf(sys.platform == 'darwin', "Multiprocessing broken for MACOS!")
     def test_multiprocessing(self):
         capture_output1 = StringIO()
         capture_output2 = StringIO()
