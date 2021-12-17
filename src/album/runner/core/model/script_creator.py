@@ -1,7 +1,7 @@
 import abc
 
 from album.runner.album_logging import get_active_logger
-from album.runner.core.api.concept.script_creator import IScriptCreator
+from album.runner.core.api.model.script_creator import IScriptCreator
 from album.runner.core.api.model.solution import ISolution
 from album.runner.core.model.solution_script import SolutionScript
 
@@ -99,7 +99,7 @@ class ScriptCreatorRunWithParent(ScriptCreatorRun):
         return children_block
 
 
-class ScriptTestCreator(ScriptCreatorRun):
+class ScriptCreatorTest(ScriptCreatorRun):
     def __init__(self):
         super().__init__()
 

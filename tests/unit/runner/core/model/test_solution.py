@@ -1,9 +1,8 @@
-import unittest
-
 from album.runner.core.model.solution import Solution
+from tests.test_unit_common import TestUnitCommon
 
 
-class TestAlbumRunner(unittest.TestCase):
+class TestSolution(TestUnitCommon):
 
     def test__init__(self):
         solution = Solution({"group": "testgroup", "name": "testname", "version": "testversion"})
