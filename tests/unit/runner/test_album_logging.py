@@ -1,10 +1,12 @@
 import logging
+import sys
 import threading
 import unittest
 from io import StringIO
 
 from album.runner.album_logging import configure_logging, get_active_logger, LogLevel, pop_active_logger, to_loglevel, \
-    set_loglevel, LogfileBuffer, push_active_logger, get_active_logger_in_thread
+    set_loglevel, LogfileBuffer, push_active_logger, get_active_logger_in_thread, LogEntry
+from tests.test_unit_common import TestUnitCommon
 
 
 def helper_test_configure_logging(logger):
@@ -15,7 +17,7 @@ def helper_test_configure_logging(logger):
     return handler_levels
 
 
-class TestLogging(unittest.TestCase):
+class TestAlbumLogging(TestUnitCommon):
 
     def tearDown(self) -> None:
         while True:
@@ -74,8 +76,18 @@ class TestLogging(unittest.TestCase):
         self.assertEqual(handler_levels, [to_level.name] * len(handler_levels))
 
 
-class TestLogfileBuffer(unittest.TestCase):
+class TestLogEntry(TestUnitCommon):
+    def test__init__(self):
+        log_entry = LogEntry("n", "l", "m")
+
+        self.assertEqual("n", log_entry.name)
+        self.assertEqual("l", log_entry.level)
+        self.assertEqual("m", log_entry.message)
+
+
+class TestLogfileBuffer(TestUnitCommon):
     def setUp(self) -> None:
+        super().setUp()
         self.capture_output = StringIO()
         self.configure_test_logging(self.capture_output)
 
@@ -113,6 +125,7 @@ class TestLogfileBuffer(unittest.TestCase):
         self.assertEqual("\t\ts", logs[6])
         self.assertEqual("\t\tl", logs[7])
 
+    @unittest.skipIf(sys.platform == 'darwin', "Multiprocessing broken for MACOS!")
     def test_multiprocessing(self):
         capture_output1 = StringIO()
         capture_output2 = StringIO()
@@ -124,6 +137,9 @@ class TestLogfileBuffer(unittest.TestCase):
 
         thread1.join()
         thread2.join()
+
+        self.assertFalse(thread1.is_alive())
+        self.assertFalse(thread2.is_alive())
 
         logger1 = get_active_logger_in_thread(thread1.ident)
         logger2 = get_active_logger_in_thread(thread2.ident)
@@ -141,6 +157,21 @@ class TestLogfileBuffer(unittest.TestCase):
         self.assertEqual(100, len(logs2))
         all(self.assertTrue(elem.startswith("thread1")) for elem in logs1)
         all(self.assertTrue(elem.startswith("thread2")) for elem in logs2)
+
+    @unittest.skip("Needs to be implemented!")
+    def test_split_messages(self):
+        # ToDo: implement
+        pass
+
+    @unittest.skip("Needs to be implemented!")
+    def test_tabulate_multi_lines(self):
+        # ToDo: implement
+        pass
+
+    @unittest.skip("Needs to be implemented!")
+    def test_parse_log(self):
+        # ToDo: implement
+        pass
 
     @staticmethod
     def log_in_thread(name, stream_handler):
@@ -174,7 +205,3 @@ class TestLogfileBuffer(unittest.TestCase):
     def as_list(logs):
         logs = logs.strip()
         return logs.split("\n")
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -40,6 +40,8 @@ class TestAPI(TestUnitCommon):
         # ToDo: implement
         pass
 
+    @unittest.skipIf(sys.platform == 'win32' or sys.platform == 'cygwin',
+                     "This test fails on the Windows CI with \"SSL: CERTIFICATE_VERIFY_FAILED\"")
     def test_download_if_not_exists(self):
         self.push_test_solution()
 
