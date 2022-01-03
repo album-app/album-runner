@@ -18,8 +18,7 @@ class SolutionScript(ISolutionScript):
         self.append_arguments = append_arguments
 
     def create_solution_script(self):
-        script = self._create_header()
-        script += self._create_body()
+        script = self._create_body()
         script += self.execution_block
 
         return script
@@ -34,10 +33,9 @@ class SolutionScript(ISolutionScript):
             "from album.runner.album_logging import configure_logging, LogLevel, get_active_logger\n"
         )
         # create logging
-        parent_name = get_active_logger().name
-        header += "configure_logging(\"%s\", loglevel=%s, stream_handler=sys.stdout, " % (
-            self.solution_object.setup().name, album_logging.to_loglevel(album_logging.get_loglevel_name())
-        ) + "formatter_string=\"" + r"%(name)s - %(levelname)s - %(message)s" + "\", parent_name=\"%s\")\n" % parent_name
+        header += "configure_logging(\"script\", loglevel=%s, stream_handler=sys.stdout, " \
+                  % (album_logging.to_loglevel(album_logging.get_loglevel_name())
+        ) + "formatter_string=\"" + r"%(levelname)-7s %(name)s - %(message)s" + "\")\n"
         # This could have an issue with nested quotes
         get_active_logger().debug("Add sys.argv arguments to runtime script: %s..." % ", ".join(self.argv))
         header += "sys.argv = json.loads(r'%s')\n" % json.dumps(self.argv)
@@ -47,6 +45,7 @@ class SolutionScript(ISolutionScript):
     def _create_body(self):
         # add the album script
         script = self.solution_object.script()
+        script += self._create_header()
         # init routine
         # script += "\nget_active_solution().init()\n" THIS FEATURE IS TEMPORARY DISABLED
         # API access
