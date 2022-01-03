@@ -147,23 +147,6 @@ def configure_logging(name, loglevel=None, stream_handler=None, formatter_string
     return logger
 
 
-def configure_root_logger(loglevel):
-    logger = logging.getLogger()
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%y/%m/%d %H:%M:%S')
-    # create console handler and set level to debug
-    # ToDo: different handlers necessary? e.g. logging additional into a file?
-    ch = logging.StreamHandler()
-    ch.setLevel(loglevel.name)
-
-    # add formatter to ch
-    ch.setFormatter(formatter)
-
-    # add ch to logger
-    logger.addHandler(ch)
-    set_loglevel(loglevel)
-
-
 def get_loglevel():
     """Returns the loglevel of the current active logger."""
     return get_active_logger().level
@@ -193,7 +176,6 @@ def set_loglevel(loglevel):
     for handler in active_logger.handlers:
         handler_name = handler.stream.name if hasattr(handler, "stream") and hasattr(handler.stream,
                                                                                      active_logger.name) else "default handler"
-
         active_logger.debug('Set loglevel for handler %s to %s...' % (handler_name, loglevel.name))
         handler.setLevel(loglevel.name)
 
