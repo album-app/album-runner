@@ -35,7 +35,7 @@ class SolutionScript(ISolutionScript):
         # create logging
         header += "configure_logging(\"script\", loglevel=%s, stream_handler=sys.stdout, " \
                   % (album_logging.to_loglevel(album_logging.get_loglevel_name())
-        ) + "formatter_string=\"" + r"%(levelname)-7s %(name)s - %(message)s" + "\")\n"
+        ) + "formatter_string=\"" + self.get_script_logging_formatter_str() + "\")\n"
         # This could have an issue with nested quotes
         get_active_logger().debug("Add sys.argv arguments to runtime script: %s..." % ", ".join(self.argv))
         header += "sys.argv = json.loads(r'%s')\n" % json.dumps(self.argv)
