@@ -64,6 +64,7 @@ class LogLevel(IntEnum):
     DEBUG = 1
     INFO = 0
     WARNING = 2
+    ERROR = 3
 
 
 def to_loglevel(value):
