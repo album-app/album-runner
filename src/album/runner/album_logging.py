@@ -1,6 +1,4 @@
-import io
 import logging
-import re
 import threading
 from enum import IntEnum, unique
 
@@ -66,6 +64,7 @@ class LogLevel(IntEnum):
     DEBUG = 1
     INFO = 0
     WARNING = 2
+    ERROR = 3
 
 
 def to_loglevel(value):
@@ -149,23 +148,6 @@ def configure_logging(name, loglevel=None, stream_handler=None, formatter_string
     return logger
 
 
-def configure_root_logger(loglevel):
-    logger = logging.getLogger()
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', '%y/%m/%d %H:%M:%S')
-    # create console handler and set level to debug
-    # ToDo: different handlers necessary? e.g. logging additional into a file?
-    ch = logging.StreamHandler()
-    ch.setLevel(loglevel.name)
-
-    # add formatter to ch
-    ch.setFormatter(formatter)
-
-    # add ch to logger
-    logger.addHandler(ch)
-    set_loglevel(loglevel)
-
-
 def get_loglevel():
     """Returns the loglevel of the current active logger."""
     return get_active_logger().level
@@ -195,7 +177,6 @@ def set_loglevel(loglevel):
     for handler in active_logger.handlers:
         handler_name = handler.stream.name if hasattr(handler, "stream") and hasattr(handler.stream,
                                                                                      active_logger.name) else "default handler"
-
         active_logger.debug('Set loglevel for handler %s to %s...' % (handler_name, loglevel.name))
         handler.setLevel(loglevel.name)
 
@@ -209,113 +190,6 @@ class LogEntry:
         self.name = name
         self.level = level
         self.message = message
-
-
-class LogfileBuffer(io.StringIO):
-    """Class for logging in a subprocess. Logs to the current active logger."""
-
-    def __init__(self, message_formatter=None):
-        super().__init__()
-        self.module_logger = get_active_logger
-        self.message_formatter = message_formatter
-        self.leftover_message = None
-
-    def write(self, input_string: str) -> int:
-        messages = self.split_messages(input_string)
-
-        for m in messages:
-            s = self.tabulate_multi_lines(m)
-
-            log_entry = self.parse_log(s)
-
-            if log_entry:
-
-                if self.message_formatter and callable(self.message_formatter):
-                    message = self.message_formatter(log_entry.message)
-                else:
-                    message = log_entry.message
-
-                old_name = self.module_logger().name
-                self.module_logger().name = log_entry.name
-
-                if LogLevel.INFO.name == log_entry.level:
-                    self.module_logger().info(message)
-                elif LogLevel.DEBUG.name == log_entry.level:
-                    self.module_logger().debug(message)
-                elif LogLevel.WARNING.name == log_entry.level:
-                    self.module_logger().warning(message)
-                else:
-                    self.module_logger().error(message)
-
-                self.module_logger().name = old_name
-
-            else:  # unknown message not using print or logging.
-                self.module_logger().info(s)
-
-        return 1
-
-    def split_messages(self, s: str):
-        # init empty return val
-        messages = []
-
-        if self.leftover_message:
-            s = self.leftover_message + s
-            self.leftover_message = None
-
-        # split
-        split_s = s.split("\n")
-
-        # strip - all message that are not interrupted
-        split_i = [l.strip() for l in split_s[:-1]]
-
-        # last message might be interrupted through buffer-size
-        if not split_s[-1].endswith("\n"):
-            self.leftover_message = split_s[-1]
-        else:
-            split_i.append(split_s[-1].strip())
-
-        for l in split_i:
-            log_entry = self.parse_log(l)
-
-            if log_entry:  # pattern found
-                messages.append(l)
-            else:  # pattern not found
-                if len(messages) > 0:  # message part of previous message
-                    messages[-1] += "\n" + l
-                else:  # message standalone
-                    messages.append(s)
-                    return messages
-
-        return messages
-
-    @staticmethod
-    def tabulate_multi_lines(s: str, indent=2):
-        split_s = s.strip().split("\n")
-        r = split_s[0].strip()
-        if len(split_s) > 1:
-            r = r + "\n"
-            for l in split_s[1:]:
-                r = r + "".join(["\t"] * indent) + l.strip() + "\n"
-        return r.strip()
-
-    @staticmethod
-    def parse_log(text) -> LogEntry:
-        # regex for log level
-        regex_log_level = "|".join([l.name for l in LogLevel])
-        # regex for log message.
-        regex_text = '([^ - ]+) - (%s) -([\s\S]+)?' % regex_log_level
-        # search
-        r = re.search(regex_text, text)
-
-        if r:
-            name = r.group(1)
-            level = r.group(2)
-            message = r.group(3)
-            if message:
-                message = r.group(3).strip(" ")
-            else:
-                message = ""
-            return LogEntry(name, level, message)
 
 
 def debug_settings():
