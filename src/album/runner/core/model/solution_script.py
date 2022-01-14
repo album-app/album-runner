@@ -45,6 +45,7 @@ class SolutionScript(ISolutionScript):
     def _create_body(self):
         # add the album script
         script = self.solution_object.script()
+        script += '\n'
         script += self._create_header()
         # init routine
         # script += "\nget_active_solution().init()\n" THIS FEATURE IS TEMPORARY DISABLED
