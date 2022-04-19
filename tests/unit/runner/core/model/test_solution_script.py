@@ -1,5 +1,6 @@
 import unittest
 
+from album.runner.core.model.solution_script import SolutionScript
 from tests.test_unit_common import TestUnitCommon
 
 
@@ -45,10 +46,40 @@ class TestSolutionScript(TestUnitCommon):
         # ToDo: implement
         pass
 
-    @unittest.skip("Needs to be implemented!")
     def test__create_parser_argument_string(self):
-        # ToDo: implement
-        pass
+        args = {
+            'name': 'myname'
+        }
+        res = SolutionScript._create_parser_argument_string(args)
+        self.assertEqual('parser.add_argument(\'--myname\', )\n', res)
+
+        args = {
+            'name': 'myname',
+            'type': 'integer'
+        }
+        res = SolutionScript._create_parser_argument_string(args)
+        self.assertEqual('parser.add_argument(\'--myname\', type=int, )\n', res)
+
+        args = {
+            'name': 'myname',
+            'type': 'string'
+        }
+        res = SolutionScript._create_parser_argument_string(args)
+        self.assertEqual('parser.add_argument(\'--myname\', type=str, )\n', res)
+
+        args = {
+            'name': 'myname',
+            'type': 'file'
+        }
+        res = SolutionScript._create_parser_argument_string(args)
+        self.assertEqual('parser.add_argument(\'--myname\', type=Path, )\n', res)
+
+        args = {
+            'name': 'myname',
+            'type': 'directory'
+        }
+        res = SolutionScript._create_parser_argument_string(args)
+        self.assertEqual('parser.add_argument(\'--myname\', type=Path, )\n', res)
 
     @unittest.skip("Needs to be implemented!")
     def test__create_action_class_string(self):
