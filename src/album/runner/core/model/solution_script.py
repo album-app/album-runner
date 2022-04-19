@@ -104,7 +104,8 @@ class SolutionScript(ISolutionScript):
         script += "\nget_active_solution().set_args(parser.parse_args())\n"
         return script
 
-    def _create_parser_argument_string(self, arg):
+    @staticmethod
+    def _create_parser_argument_string(arg):
         keys = arg.keys()
 
         if 'default' in keys and 'action' in keys:
@@ -116,10 +117,12 @@ class SolutionScript(ISolutionScript):
             parse_arg += "default='%s', " % arg['default']
         if 'description' in keys:
             parse_arg += "help='%s', " % arg['description']
+        if 'type' in keys:
+            parse_arg += "type=%s, " % SolutionScript._parse_type(arg['type'])
         if 'required' in keys:
             parse_arg += "required=%s, " % arg['required']  # CAUTION: no ''! Boolean value
         if 'action' in keys:
-            class_name = self._get_action_class_name(arg['name'])
+            class_name = SolutionScript._get_action_class_name(arg['name'])
             parse_arg += "action=%s, " % class_name  # CAUTION: no ''! action must be callable!
         parse_arg += ")\n"
 
@@ -143,3 +146,18 @@ class {class_name}(argparse.Action):
     def _get_action_class_name(name):
         class_name = '%sAction' % name.capitalize()
         return class_name
+
+    @staticmethod
+    def _parse_type(type_str):
+        if type_str == 'string':
+            return 'str'
+        if type_str == 'file':
+            return 'Path'
+        if type_str == 'directory':
+            return 'Path'
+        if type_str == 'integer':
+            return 'int'
+        if type_str == 'float':
+            return 'float'
+        if type_str == 'boolean':
+            return 'bool'
