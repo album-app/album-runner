@@ -1,5 +1,7 @@
+import time
 import unittest
 
+from tests.integration import test_integration_script_creator
 from tests.unit.runner import test_album_logging, test_api
 from tests.unit.runner.core.model import test_solution, test_coordinates, test_script_creator, test_solution_script
 
@@ -18,10 +20,13 @@ def main():
     suite.addTests(loader.loadTestsFromModule(test_script_creator))
     suite.addTests(loader.loadTestsFromModule(test_solution_script))
 
+    # integration tests
+    suite.addTests(loader.loadTestsFromModule(test_integration_script_creator))
 
     runner = unittest.TextTestRunner(verbosity=3)
     result = runner.run(suite)
     if result.wasSuccessful():
+        time.sleep(10)
         print("Success")
         exit(0)
     else:
