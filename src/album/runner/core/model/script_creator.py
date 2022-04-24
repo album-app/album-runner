@@ -102,9 +102,15 @@ class ScriptCreatorRunWithParent(ScriptCreatorRun):
 class ScriptCreatorTest(ScriptCreatorRun):
     def __init__(self):
         super().__init__()
+        d = None
+        d = None if d else d
 
     def get_execution_block(self, solution_object: ISolution):
-        execution_block = "\nd = get_active_solution().setup().pre_test()\n"
+        if 'pre_test' in solution_object.setup():
+            execution_block = "\nd = get_active_solution().setup().pre_test()\n"
+            execution_block += "d = {} if not d else d\n"
+        else:
+            execution_block = "\nd = {}\n"
         execution_block += "\nsys.argv = sys.argv + [\"=\".join([c, d[c]]) for c in d]\n"
 
         # parse args again after pre_test() routine if necessary.
