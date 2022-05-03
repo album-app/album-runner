@@ -8,7 +8,6 @@ from tests.test_unit_common import TestUnitCommon
 class TestIntegrationScriptCreator(TestUnitCommon):
 
     def test_get_args(self):
-
         solution_content = """
 from album.runner.api import setup
 
@@ -38,7 +37,6 @@ setup(**{
         self.assertEqual('aValue', args.a1)
 
     def test_test_without_pretest(self):
-
         solution_content = """
 from album.runner.api import setup
 
@@ -60,7 +58,6 @@ setup(**{
         exec(script)
 
     def test_test_pretest_without_return(self):
-
         solution_content = """
 from album.runner.api import setup
 
@@ -84,6 +81,43 @@ setup(**{
 
         script = creator.create_script(active_solution, [''])
         exec(script)
+
+    def test_local_import(self):
+        import tempfile
+        from pathlib import Path
+        solution_content = """
+from album.runner.api import setup
+def run():
+    try:
+        from import_test import test_val
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError("Could not import local module")
+
+setup(**{
+            'group': "tsg",
+            'name': "tsn",
+            'version': "tsv",
+            'run': run,
+            'test': lambda: True,
+            'args': [{"name": "a1", "description": ""}]
+        })
+"""
+        import_content = "test_val = \"GGEZ\""
+
+        with tempfile.TemporaryDirectory() as tmp_dir_name:
+            tmp_dir = Path(tmp_dir_name)
+            tmp_import = Path(tmp_dir).joinpath("import_test.py")
+            tmp_import.write_text(import_content)
+
+            exec(solution_content)
+            active_solution = get_active_solution()
+            active_solution.installation().set_package_path(tmp_dir)
+            active_solution.set_script(solution_content)
+            pop_active_solution()
+            creator = ScriptCreatorTest()
+
+            script = creator.create_script(active_solution, ['', '--a1', 'aValue'])
+            exec(script)
 
 
 if __name__ == '__main__':
