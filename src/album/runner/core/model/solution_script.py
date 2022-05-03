@@ -51,6 +51,7 @@ class SolutionScript(ISolutionScript):
         # script += "\nget_active_solution().init()\n" THIS FEATURE IS TEMPORARY DISABLED
         # API access
         script += self._api_access()
+        script += "sys.path.insert(0, str(get_package_path()))\n"
 
         if self.solution_object.setup().args:
             if self.append_arguments:
