@@ -98,7 +98,6 @@ setup(**{
             'name': "tsn",
             'version': "tsv",
             'run': run,
-            'test': lambda: True,
             'args': [{"name": "a1", "description": ""}]
         })
 """
@@ -114,7 +113,7 @@ setup(**{
             active_solution.installation().set_package_path(tmp_dir)
             active_solution.set_script(solution_content)
             pop_active_solution()
-            creator = ScriptCreatorTest()
+            creator = ScriptCreatorRun()
 
             script = creator.create_script(active_solution, ['', '--a1', 'aValue'])
             exec(script)
