@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from album.runner.api import get_args, get_active_solution, pop_active_solution
 from album.runner.core.model.script_creator import ScriptCreatorRun, ScriptCreatorTest
@@ -83,8 +84,6 @@ setup(**{
         exec(script)
 
     def test_local_import(self):
-        import tempfile
-        from pathlib import Path
         solution_content = """
 from album.runner.api import setup
 def run():
@@ -103,20 +102,19 @@ setup(**{
 """
         import_content = "test_val = \"GGEZ\""
 
-        with tempfile.TemporaryDirectory() as tmp_dir_name:
-            tmp_dir = Path(tmp_dir_name)
-            tmp_import = Path(tmp_dir).joinpath("import_test.py")
-            tmp_import.write_text(import_content)
+        tmp_dir = Path(self.tmp_dir.name)
+        tmp_import = Path(tmp_dir).joinpath("import_test.py")
+        tmp_import.write_text(import_content)
 
-            exec(solution_content)
-            active_solution = get_active_solution()
-            active_solution.installation().set_package_path(tmp_dir)
-            active_solution.set_script(solution_content)
-            pop_active_solution()
-            creator = ScriptCreatorRun()
+        exec(solution_content)
+        active_solution = get_active_solution()
+        active_solution.installation().set_package_path(self.tmp_dir.name)
+        active_solution.set_script(solution_content)
+        pop_active_solution()
+        creator = ScriptCreatorRun()
 
-            script = creator.create_script(active_solution, ['', '--a1', 'aValue'])
-            exec(script)
+        script = creator.create_script(active_solution, ['', '--a1', 'aValue'])
+        exec(script)
 
 
 if __name__ == '__main__':
