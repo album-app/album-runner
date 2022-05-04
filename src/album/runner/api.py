@@ -153,7 +153,7 @@ def album_runner_init(environment_path=None, environment_name=None, user_cache_p
         active_solution.installation().set_app_path(app_path.decode(enc))
     # add app_path to syspath
     sys.path.insert(0, active_solution.installation().app_path())
-
+    sys.path.insert(0, active_solution.installation().package_path())
 
 def push_active_solution(solution_object: ISolution):
     """Pop a solution to the _active_solution stack."""
