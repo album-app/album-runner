@@ -108,13 +108,13 @@ class ScriptCreatorTest(ScriptCreatorRun):
     def get_execution_block(self, solution_object: ISolution):
         if 'pre_test' in solution_object.setup():
             execution_block = "\nd = get_active_solution().setup().pre_test()\n"
-            execution_block += "d = {} if not d else d\n"
+            execution_block += "d = {} if d is None else d\n"
         else:
             execution_block = "\nd = {}\n"
         execution_block += "\nsys.argv = sys.argv + [\"=\".join([c, d[c]]) for c in d]\n"
 
         # parse args again after pre_test() routine if necessary.
-        if not solution_object.setup()["args"] == "pass-through":
+        if "args" in solution_object.setup().keys():
             execution_block += "\nget_active_solution().set_args(parser.parse_args())\n"
 
         execution_block += super().get_execution_block(solution_object)
