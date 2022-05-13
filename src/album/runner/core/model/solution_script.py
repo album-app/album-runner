@@ -52,6 +52,7 @@ class SolutionScript(ISolutionScript):
         # API access
         script += self._api_access()
 
+
         if self.solution_object.setup().args:
             if self.append_arguments:
                 script += self._append_arguments(self.solution_object.setup().args)
