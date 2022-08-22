@@ -1,0 +1,287 @@
+{
+    "$ref": "#/definitions/RDF",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "Parent": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "group": {
+                            "title": "group",
+                            "type": "string"
+                        },
+                        "name": {
+                            "title": "name",
+                            "type": "string"
+                        },
+                        "version": {
+                            "title": "version",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "group",
+                        "name",
+                        "version"
+                    ]
+                }, {
+                    "type": "object",
+                    "properties": {
+                        "resolve_solution": {
+                            "title": "resolve_solution",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "resolve_solution"
+                    ]
+                }, {
+                    "type": "object",
+                    "properties": {
+                        "doi": {
+                            "title": "doi",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "doi"
+                    ]
+                }
+            ]
+        },
+        "Argument": {
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "title": "name",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "description",
+                    "type": "string"
+                },
+                "type": {
+                    "title": "type",
+                    "type": "string",
+                    "enum": ["string", "file", "directory", "boolean", "integer", "float"]
+                },
+                "default": {
+                    "title": "default"
+                },
+                "required": {
+                    "title": "required",
+                    "type": "boolean"
+                },
+                "action": {
+                    "title": "action"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "type": "object"
+        },
+        "Dependencies": {
+            "additionalProperties": false,
+            "properties": {
+                "parent": {
+                    "title": "parent",
+                    "$ref": "#/definitions/Parent"
+                },
+                "environment_file": {
+                    "title": "environment_file"
+                },
+                "plugins": {
+                    "items": {
+                        "$ref": "#/definitions/Plugin"
+                    },
+                    "title": "plugins",
+                    "type": "array"
+                }
+            },
+            "required": [],
+            "type": "object"
+        },
+        "Plugin": {
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "title": "id",
+                    "type": "string"
+                },
+                "args": {
+                    "title": "args",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "type": "object"
+        },
+        "Citation": {
+            "additionalProperties": false,
+            "properties": {
+                "doi": {
+                    "title": "doi",
+                    "type": "string"
+                },
+                "text": {
+                    "title": "text",
+                    "type": "string"
+                },
+                "url": {
+                    "title": "url",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "text"
+            ],
+            "type": "object"
+        },
+        "Cover": {
+            "additionalProperties": false,
+            "properties": {
+                "source": {
+                    "title": "source",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "description",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "RDF": {
+            "additionalProperties": false,
+            "properties": {
+                "solution_creators": {
+                    "type": "array",
+                    "title": "solution_creators",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "args": {
+                    "items": {
+                        "$ref": "#/definitions/Argument"
+                    },
+                    "type": "array"
+                },
+                "cite": {
+                    "items": {
+                        "$ref": "#/definitions/Citation"
+                    },
+                    "type": "array"
+                },
+                "covers": {
+                    "items": {
+                        "$ref": "#/definitions/Cover"
+                    },
+                    "title": "covers",
+                    "type": "array"
+                },
+                "description": {
+                    "title": "description",
+                    "type": "string"
+                },
+                "documentation": {
+                    "title": "documentation",
+                    "anyOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    ]
+                },
+                "acknowledgement": {
+                    "title": "acknowledgement",
+                    "type": "string"
+                },
+                "license": {
+                    "title": "license",
+                    "type": "string"
+                },
+                "name": {
+                    "title": "name",
+                    "type": "string"
+                },
+                "group": {
+                    "title": "group",
+                    "type": "string"
+                },
+                "title": {
+                    "title": "title",
+                    "type": "string"
+                },
+                "album_api_version": {
+                    "title": "album_api_version",
+                    "type": "string"
+                },
+                "tags": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "tags",
+                    "type": "array"
+                },
+                "version": {
+                    "title": "version",
+                    "type": "string"
+                },
+                "changelog": {
+                    "title": "changelog",
+                    "type": "string"
+                },
+                "doi": {
+                    "title": "doi",
+                    "type": "string"
+                },
+                "dependencies": {
+                    "title": "dependencies",
+                    "type": "object",
+                    "$ref": "#/definitions/Dependencies"
+                },
+                "steps": {
+                    "title": "steps"
+                },
+                "custom": {
+                    "title": "custom",
+                    "type": "object"
+                },
+                "install": {
+                    "title": "install"
+                },
+                "uninstall": {
+                    "title": "uninstall"
+                },
+                "run": {
+                    "title": "run"
+                },
+                "test": {
+                    "title": "test"
+                },
+                "pre_test": {
+                    "title": "pre_test"
+                },
+                "close": {
+                    "title": "close"
+                }
+            },
+            "required": [
+                "group",
+                "name",
+                "version"
+            ],
+            "type": "object"
+        }
+    }
+}
