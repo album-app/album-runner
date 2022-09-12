@@ -37,6 +37,36 @@ setup(**{
         args = get_args()
         self.assertEqual('aValue', args.a1)
 
+    def test_get_args(self):
+        solution_content = """
+from album.runner.api import setup
+
+setup(**{
+            'group': "tsg",
+            'name': "tsn",
+            'version': "tsv",
+            'args': [{"name": "a1", "type": "boolean", "default": False}]
+        })
+"""
+        exec(solution_content)
+        active_solution = get_active_solution()
+        active_solution.set_script(solution_content)
+        pop_active_solution()
+        creator = ScriptCreatorRun()
+
+        # test no arg
+        script = creator.create_script(active_solution, [''])
+        print(script)
+        exec(script)
+        args = get_args()
+        self.assertFalse(args.a1)
+
+        # test with arg
+        script = creator.create_script(active_solution, ['', '--a1', 'True'])
+        exec(script)
+        args = get_args()
+        self.assertEqual(True, args.a1)
+
     def test_test_without_pretest(self):
         solution_content = """
 from album.runner.api import setup
