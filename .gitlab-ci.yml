@@ -12,6 +12,9 @@
 #
 .linux_base_template:
   image: python:latest
+  tags:
+    - docker
+    - linux
   before_script:
     - python -V  # Print out python version for debugging
     - which python
@@ -207,4 +210,4 @@ unit tests windows:
   stage: test
   script:
     - $cmnd = powershell.exe -command {conda create -y -n album-runner python=3.6 pip 2>&1 | Write-Host; conda activate album-runner 2>&1 | Write-Host; pip install --no-cache-dir . 2>&1 | Write-Host; python -m unittest tests\run_all.py 2>&1 | Write-Host; exit(0)}
-    - if ("Success" -in $cmnd[-6..-1]) {exit(0)} else {exit(1)}
+    - if ("Success" -in $cmnd[-7..-1]) {exit(0)} else {exit(1)}
