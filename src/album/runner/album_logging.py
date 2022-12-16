@@ -1,6 +1,6 @@
 import logging
 import threading
-from enum import IntEnum, unique
+from enum import Enum, unique
 
 """
 Global variable for tracking the currently active logger. Do not use this
@@ -54,7 +54,7 @@ def pop_active_logger():
 
 
 @unique
-class LogLevel(IntEnum):
+class LogLevel(Enum):
     """LogLevel album allows.
 
     Notes:
