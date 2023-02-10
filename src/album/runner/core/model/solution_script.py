@@ -115,7 +115,10 @@ class SolutionScript(ISolutionScript):
 
         parse_arg = "parser.add_argument('--%s', " % arg['name']
         if 'default' in keys:
-            parse_arg += "default='%s', " % arg['default']
+            if 'type' in keys and arg['type'] == 'boolean':
+                parse_arg += "default=%s, " % arg['default']
+            else:
+                parse_arg += "default='%s', " % arg['default']
         if 'description' in keys:
             parse_arg += "help='%s', " % arg['description']
         if 'type' in keys:

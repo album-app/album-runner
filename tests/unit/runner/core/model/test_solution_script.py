@@ -62,6 +62,13 @@ class TestSolutionScript(TestUnitCommon):
 
         args = {
             'name': 'myname',
+            'type': 'boolean'
+        }
+        res = SolutionScript._create_parser_argument_string(args)
+        self.assertEqual('parser.add_argument(\'--myname\', type=bool, )\n', res)
+
+        args = {
+            'name': 'myname',
             'type': 'string'
         }
         res = SolutionScript._create_parser_argument_string(args)
