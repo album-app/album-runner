@@ -10,13 +10,14 @@ from album.runner.core.api.model.solution_script import ISolutionScript
 enc = sys.getfilesystemencoding()
 
 
+
+
 class SolutionScript(ISolutionScript):
     def __init__(self, solution_object: ISolution, execution_block, argv, append_arguments=True):
         self.solution_object = solution_object
         self.execution_block = execution_block
         self.argv = argv
         self.append_arguments = append_arguments
-
     def create_solution_script(self):
         script = self._create_body()
         script += self.execution_block
@@ -35,7 +36,7 @@ class SolutionScript(ISolutionScript):
         # create logging
         header += "configure_logging(\"script\", loglevel=%s, stream_handler=sys.stdout, " \
                   % (album_logging.to_loglevel(album_logging.get_loglevel_name())
-        ) + "formatter_string=\"" + self.get_script_logging_formatter_str() + "\")\n"
+                     ) + "formatter_string=\"" + self.get_script_logging_formatter_str() + "\")\n"
         # This could have an issue with nested quotes
         get_active_logger().debug("Add sys.argv arguments to runtime script: %s..." % ", ".join(self.argv))
         header += "sys.argv = json.loads(r'%s')\n" % json.dumps(self.argv)
@@ -98,6 +99,7 @@ class SolutionScript(ISolutionScript):
         get_active_logger().debug('Add argument parsing for album solution to runtime script...')
         # Add the argument handling
         script = "\nparser = argparse.ArgumentParser(description='album run %s')\n" % self.solution_object.setup().name
+        script += self._str_to_bool_str()
         for arg in args:
             if 'action' in arg.keys():
                 script += self._create_action_class_string(arg)
@@ -106,12 +108,25 @@ class SolutionScript(ISolutionScript):
         return script
 
     @staticmethod
+    def _str_to_bool_str():
+        return """def strtobool (val):
+    val = val.lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    else:
+        raise ValueError("invalid truth value %r" % (val,))
+
+"""
+
+    @staticmethod
     def _create_parser_argument_string(arg):
         keys = arg.keys()
 
         if 'default' in keys and 'action' in keys:
             get_active_logger().warning("Default values cannot be automatically set when an action is provided! "
-                                    "Ignoring default values...")
+                                        "Ignoring default values...")
 
         parse_arg = "parser.add_argument('--%s', " % arg['name']
         if 'default' in keys:
@@ -164,4 +179,5 @@ class {class_name}(argparse.Action):
         if type_str == 'float':
             return 'float'
         if type_str == 'boolean':
-            return 'bool'
+            return 'strtobool'
+
