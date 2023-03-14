@@ -56,16 +56,22 @@ setup(**{
 
         # test no arg
         script = creator.create_script(active_solution, [''])
-        print(script)
         exec(script)
         args = get_args()
         self.assertFalse(args.a1)
 
         # test with arg
         script = creator.create_script(active_solution, ['', '--a1', 'True'])
+        print(script)
         exec(script)
         args = get_args()
         self.assertEqual(True, args.a1)
+
+        # test with arg
+        script = creator.create_script(active_solution, ['', '--a1', 'False'])
+        exec(script)
+        args = get_args()
+        self.assertEqual(False, args.a1)
 
     def test_test_without_pretest(self):
         solution_content = """
